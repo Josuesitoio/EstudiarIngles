@@ -616,11 +616,14 @@
             }
         });
         
+        // --- CORRECCIÓN AQUÍ ---
+        // Ahora muestra ambas definiciones para un aprendizaje completo.
         elements.definitionContainer.innerHTML = `
             <p class="font-bold text-lg text-indigo-800">${question.english}</p>
             <p class="font-semibold text-gray-700">${question.spanish}</p>
-            <div class="mt-2 text-sm text-gray-600">
-                <p><strong class="font-medium">EN:</strong> ${question.definition_en}</p>
+            <div class="mt-2 text-sm text-gray-600 space-y-1">
+                <p><strong class="font-medium text-gray-900">EN:</strong> ${question.definition_en}</p>
+                <p><strong class="font-medium text-gray-900">ES:</strong> ${question.definition_es}</p>
             </div>
         `;
         elements.definitionContainer.classList.remove('hidden');
@@ -629,7 +632,6 @@
         elements.score.textContent = state.quiz.score;
         elements.nextQuestionBtn.classList.remove('hidden');
     };
-
     const nextQuestion = () => {
         state.quiz.currentQuestionIndex++;
         if (state.quiz.currentQuestionIndex < state.quiz.questions.length) {
@@ -703,3 +705,4 @@
 </script>
 </body>
 </html>
+
