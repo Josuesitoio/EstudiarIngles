@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz de Vocabulario Mejorado</title>
+    <title>Quiz de Vocabulario Avanzado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            touch-action: manipulation; /* Mejora la respuesta táctil en móviles */
+            touch-action: manipulation;
         }
         .card {
             background-color: white;
             border-radius: 1rem;
-            padding: 1.5rem; /* Menos padding en móvil */
+            padding: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
-        @media (min-width: 640px) { /* sm breakpoint */
+        @media (min-width: 640px) {
             .card {
                 padding: 2rem;
             }
@@ -31,6 +31,7 @@
             transition: all 0.2s ease-in-out;
             cursor: pointer;
             border: 1px solid transparent;
+            user-select: none;
         }
         .btn-nav {
             background-color: #e5e7eb;
@@ -52,7 +53,7 @@
             transform: translateY(-2px);
         }
         .btn-action {
-             background-color: #4f46e5;
+            background-color: #4f46e5;
             color: white;
         }
         .btn-action:hover {
@@ -93,12 +94,20 @@
             </div>
 
             <div id="quiz-view">
-                <div id="quiz-container" class="text-center">
+                <div id="mode-selection-view" class="text-center">
+                    <h2 class="text-2xl font-bold mb-6">Elige un modo de juego</h2>
+                    <div class="space-y-4">
+                        <button data-mode="translation" class="btn btn-action w-full text-lg">¿Cuál es la traducción?</button>
+                        <button data-mode="definition" class="btn btn-action w-full text-lg">¿Qué palabra es? (Definición)</button>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="text-center hidden">
                     <div id="quiz-header" class="mb-4">
                         <p class="text-sm text-gray-500">Pregunta <span id="question-count">1</span> de <span id="total-questions">50</span></p>
                         <p class="font-semibold">Puntaje: <span id="score">0</span></p>
                     </div>
-                    <h2 class="text-2xl md:text-3xl font-bold mb-6 min-h-[80px] flex items-center justify-center" id="question-word">Cargando...</h2>
+                    <h2 class="text-xl md:text-2xl font-bold mb-6 min-h-[100px] flex items-center justify-center" id="question-word">Cargando...</h2>
                     <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         </div>
                     <div id="definition-container" class="hidden mt-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg text-left">
@@ -110,20 +119,19 @@
                     <p class="text-xl mb-6">Tu puntaje final es: <span id="final-score" class="font-bold"></span></p>
                     <button id="restart-quiz-btn" class="btn btn-action w-full">Jugar de Nuevo</button>
                     <button id="review-missed-btn" class="btn btn-nav w-full mt-3 hidden">Repasar Palabras Falladas</button>
+                    <button id="change-mode-btn" class="btn btn-nav w-full mt-3">Cambiar de Modo</button>
                 </div>
             </div>
 
             <div id="dictionary-view" class="hidden">
                 <h2 class="text-2xl font-bold text-center mb-4">Diccionario</h2>
                 <input type="text" id="search-input" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Buscar en inglés o español...">
-                <div id="dictionary-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                    </div>
+                <div id="dictionary-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
             </div>
             
             <div id="review-view" class="hidden">
                  <h2 class="text-2xl font-bold text-center mb-4">Palabras para Repasar</h2>
-                 <div id="review-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 mb-6">
-                     </div>
+                 <div id="review-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 mb-6"></div>
                  <button id="start-review-quiz-btn" class="btn btn-action w-full">Iniciar Quiz de Repaso</button>
                  <button id="back-to-results-btn" class="btn btn-nav w-full mt-3">Volver a Resultados</button>
             </div>
@@ -132,7 +140,6 @@
 
 <script>
     // --- 1. DATOS ---
-    // El array 'vocabulary' no ha sido modificado, tal como solicitaste.
     const vocabulary = [
         { english: "to hold all the cards", spanish: "ser el control absoluto de algo", definition_en: "To have all the power in a situation.", definition_es: "Tener todo el poder en una situación." },
         { english: "that being the case", spanish: "si ese es el caso", definition_en: "Under that circumstance.", definition_es: "Bajo esa circunstancia." },
@@ -390,17 +397,18 @@
     
     // --- 2. ESTADO DE LA APLICACIÓN ---
     let state = {
-        currentView: 'quiz', // 'quiz', 'dictionary', o 'review'
+        currentView: 'quiz',
         quiz: {
             questions: [],
-            missedWords: [], // NUEVO: para guardar las palabras falladas
+            missedWords: [],
             currentQuestionIndex: 0,
             score: 0,
             answered: false,
+            mode: null, // NUEVO: 'translation' o 'definition'
         },
     };
 
-    const QUIZ_LENGTH = 50; // AUMENTADO A 50
+    const QUIZ_LENGTH = 50;
     const NUM_OPTIONS = 4;
 
     // --- 3. SELECTORES DEL DOM ---
@@ -409,7 +417,8 @@
         btnDictView: document.getElementById('btn-dict-view'),
         quizView: document.getElementById('quiz-view'),
         dictionaryView: document.getElementById('dictionary-view'),
-        reviewView: document.getElementById('review-view'), // NUEVO
+        reviewView: document.getElementById('review-view'),
+        modeSelectionView: document.getElementById('mode-selection-view'), // NUEVO
         // Quiz
         quizContainer: document.getElementById('quiz-container'),
         resultsContainer: document.getElementById('results-container'),
@@ -418,18 +427,19 @@
         score: document.getElementById('score'),
         questionWord: document.getElementById('question-word'),
         optionsContainer: document.getElementById('options-container'),
-        definitionContainer: document.getElementById('definition-container'), // NUEVO
+        definitionContainer: document.getElementById('definition-container'),
         nextQuestionBtn: document.getElementById('next-question-btn'),
         finalScore: document.getElementById('final-score'),
         restartQuizBtn: document.getElementById('restart-quiz-btn'),
-        reviewMissedBtn: document.getElementById('review-missed-btn'), // NUEVO
+        reviewMissedBtn: document.getElementById('review-missed-btn'),
+        changeModeBtn: document.getElementById('change-mode-btn'), // NUEVO
         // Dictionary
         searchInput: document.getElementById('search-input'),
         dictionaryList: document.getElementById('dictionary-list'),
         // Review
-        reviewList: document.getElementById('review-list'), // NUEVO
-        startReviewQuizBtn: document.getElementById('start-review-quiz-btn'), // NUEVO
-        backToResultsBtn: document.getElementById('back-to-results-btn'), // NUEVO
+        reviewList: document.getElementById('review-list'),
+        startReviewQuizBtn: document.getElementById('start-review-quiz-btn'),
+        backToResultsBtn: document.getElementById('back-to-results-btn'),
     };
 
     // --- 4. FUNCIONES ---
@@ -446,6 +456,10 @@
         if (view === 'quiz') {
             elements.quizView.style.display = 'block';
             elements.btnQuizView.classList.add('active');
+            // Al cambiar a la vista de quiz, mostramos la selección de modo si no hay un quiz activo
+            if (!state.quiz.mode) {
+                showModeSelection();
+            }
         } else if (view === 'dictionary') {
             elements.dictionaryView.style.display = 'block';
             elements.btnDictView.classList.add('active');
@@ -454,6 +468,12 @@
             elements.reviewView.style.display = 'block';
             renderReviewList();
         }
+    };
+    
+    const showModeSelection = () => {
+        elements.modeSelectionView.style.display = 'block';
+        elements.quizContainer.style.display = 'none';
+        elements.resultsContainer.style.display = 'none';
     };
 
     // Lógica del Diccionario
@@ -464,7 +484,7 @@
                 item.english.toLowerCase().includes(lowerCaseFilter) ||
                 item.spanish.toLowerCase().includes(lowerCaseFilter)
             )
-            .sort((a, b) => a.english.localeCompare(b.english)); // Ordenar alfabéticamente
+            .sort((a, b) => a.english.localeCompare(b.english));
 
         if (filteredVocab.length === 0) {
             elements.dictionaryList.innerHTML = `<p class="text-center text-gray-500">No se encontraron resultados.</p>`;
@@ -494,11 +514,8 @@
         return array;
     };
 
-    /**
-     * Inicia un nuevo quiz.
-     * @param {boolean} isReviewMode - Si es true, el quiz usará solo las palabras falladas.
-     */
-    const startQuiz = (isReviewMode = false) => {
+    const startQuiz = (isReviewMode = false, mode) => {
+        state.quiz.mode = mode || state.quiz.mode; // Usar nuevo modo o el anterior para el repaso
         const sourceVocab = isReviewMode && state.quiz.missedWords.length > 0
             ? state.quiz.missedWords
             : vocabulary;
@@ -511,28 +528,30 @@
         state.quiz.score = 0;
         state.quiz.answered = false;
         
-        // Solo limpiar las palabras falladas si es un quiz nuevo, no una revisión
         if (!isReviewMode) {
             state.quiz.missedWords = [];
         }
 
+        elements.modeSelectionView.style.display = 'none';
         elements.quizContainer.style.display = 'block';
         elements.resultsContainer.style.display = 'none';
         elements.totalQuestions.textContent = state.quiz.questions.length;
 
-        switchView('quiz');
         renderQuestion();
     };
     
-    const getWrongOptions = (correctItem, lang) => {
+    const getWrongOptions = (correctItem) => {
         const wrongOptions = [];
         const vocabCopy = [...vocabulary];
+        let field = state.quiz.mode === 'translation' ? (correctItem.hasOwnProperty('spanish') ? 'spanish' : 'english') : 'english';
+        let correctValue = correctItem[field];
+
         while (wrongOptions.length < NUM_OPTIONS - 1 && vocabCopy.length > 1) {
             const randomIndex = Math.floor(Math.random() * vocabCopy.length);
             const randomItem = vocabCopy[randomIndex];
-            // Asegurarse de que la opción incorrecta no sea igual a la correcta y no esté ya en la lista
-            if (randomItem[lang] !== correctItem[lang] && !wrongOptions.some(opt => opt === randomItem[lang])) {
-                wrongOptions.push(randomItem[lang]);
+            
+            if (randomItem[field] !== correctValue && !wrongOptions.includes(randomItem[field])) {
+                wrongOptions.push(randomItem[field]);
             }
             vocabCopy.splice(randomIndex, 1);
         }
@@ -542,23 +561,27 @@
     const renderQuestion = () => {
         state.quiz.answered = false;
         elements.nextQuestionBtn.classList.add('hidden');
-        elements.definitionContainer.classList.add('hidden'); // Ocultar definición
+        elements.definitionContainer.classList.add('hidden');
         elements.score.textContent = state.quiz.score;
         elements.questionCount.textContent = state.quiz.currentQuestionIndex + 1;
 
         const question = state.quiz.questions[state.quiz.currentQuestionIndex];
-        
-        const isEnglishQuestion = Math.random() < 0.5;
-        const questionLang = isEnglishQuestion ? 'english' : 'spanish';
-        const answerLang = isEnglishQuestion ? 'spanish' : 'english';
+        let questionText, correctAnswer, options;
 
-        elements.questionWord.textContent = question[questionLang];
-        
-        const correctAnswer = question[answerLang];
-        const wrongAnswers = getWrongOptions(question, answerLang);
-        
-        const options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        if (state.quiz.mode === 'definition') {
+            questionText = question.definition_en;
+            correctAnswer = question.english;
+            const wrongAnswers = getWrongOptions(question);
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        } else { // Modo 'translation'
+            const isEnglishQuestion = Math.random() < 0.5;
+            questionText = isEnglishQuestion ? question.english : question.spanish;
+            correctAnswer = isEnglishQuestion ? question.spanish : question.english;
+            const wrongAnswers = getWrongOptions({ [isEnglishQuestion ? 'spanish' : 'english']: correctAnswer });
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        }
 
+        elements.questionWord.textContent = questionText;
         elements.optionsContainer.innerHTML = options.map(option => `
             <button class="btn btn-option" data-answer="${option === correctAnswer}">${option}</button>
         `).join('');
@@ -581,10 +604,11 @@
             selectedButton.classList.add('correct-answer');
         } else {
             selectedButton.classList.add('wrong-answer');
-            state.quiz.missedWords.push(question); // Guardar palabra fallada
+            if (!state.quiz.missedWords.includes(question)) {
+                state.quiz.missedWords.push(question);
+            }
         }
 
-        // Mostrar la respuesta correcta y deshabilitar todas las opciones
         document.querySelectorAll('.btn-option').forEach(button => {
             button.classList.add('disabled-option');
             if (button.dataset.answer === 'true') {
@@ -592,13 +616,11 @@
             }
         });
         
-        // NUEVO: Mostrar la definición de la palabra
         elements.definitionContainer.innerHTML = `
             <p class="font-bold text-lg text-indigo-800">${question.english}</p>
             <p class="font-semibold text-gray-700">${question.spanish}</p>
             <div class="mt-2 text-sm text-gray-600">
                 <p><strong class="font-medium">EN:</strong> ${question.definition_en}</p>
-                <p><strong class="font-medium">ES:</strong> ${question.definition_es}</p>
             </div>
         `;
         elements.definitionContainer.classList.remove('hidden');
@@ -623,7 +645,6 @@
         elements.resultsContainer.classList.add('fade-in');
         elements.finalScore.textContent = `${state.quiz.score} / ${state.quiz.questions.length}`;
 
-        // Mostrar el botón de repaso solo si hay palabras falladas
         if (state.quiz.missedWords.length > 0) {
             elements.reviewMissedBtn.classList.remove('hidden');
         } else {
@@ -631,11 +652,8 @@
         }
     };
 
-    // NUEVO: Función para mostrar la lista de palabras a repasar
     const renderReviewList = () => {
-        elements.quizView.style.display = 'none';
-        elements.dictionaryView.style.display = 'none';
-        elements.reviewView.style.display = 'block';
+        switchView('review');
         elements.reviewView.classList.add('fade-in');
 
         if (state.quiz.missedWords.length === 0) {
@@ -651,33 +669,37 @@
             <div class="p-3 bg-gray-50 rounded-lg border">
                 <p class="font-bold text-lg text-indigo-700">${item.english}</p>
                 <p class="font-semibold text-lg text-gray-800">${item.spanish}</p>
-                <div class="mt-2 text-sm text-gray-600 space-y-1">
-                   <p><strong class="font-medium text-gray-900">EN:</strong> ${item.definition_en}</p>
-                   <p><strong class="font-medium text-gray-900">ES:</strong> ${item.definition_es}</p>
-                </div>
             </div>
         `).join('');
     };
-
 
     // --- 5. EVENT LISTENERS ---
     elements.btnQuizView.addEventListener('click', () => switchView('quiz'));
     elements.btnDictView.addEventListener('click', () => switchView('dictionary'));
     elements.searchInput.addEventListener('input', (e) => renderDictionary(e.target.value));
+    
+    document.querySelectorAll('#mode-selection-view button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const mode = e.target.dataset.mode;
+            startQuiz(false, mode);
+        });
+    });
+
     elements.nextQuestionBtn.addEventListener('click', nextQuestion);
-    elements.restartQuizBtn.addEventListener('click', () => startQuiz(false)); // Inicia un quiz normal
+    elements.restartQuizBtn.addEventListener('click', () => startQuiz(false, state.quiz.mode));
     elements.reviewMissedBtn.addEventListener('click', renderReviewList);
-    elements.startReviewQuizBtn.addEventListener('click', () => startQuiz(true)); // Inicia quiz de repaso
+    elements.startReviewQuizBtn.addEventListener('click', () => startQuiz(true));
     elements.backToResultsBtn.addEventListener('click', showResults);
+    elements.changeModeBtn.addEventListener('click', () => {
+        state.quiz.mode = null; // Resetea el modo
+        showModeSelection();
+    });
     
     // --- 6. INICIALIZACIÓN ---
     document.addEventListener('DOMContentLoaded', () => {
         switchView('quiz');
-        startQuiz();
     });
 
 </script>
 </body>
 </html>
-
-
