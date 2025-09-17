@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Vocabulario: Phrasal Verbs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        @media (min-width: 640px) {
+            .card {
+                padding: 2rem;
+            }
+        }
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .btn-nav {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .btn-nav.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        .btn-option {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .btn-option:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+            transform: translateY(-2px);
+        }
+        .btn-action {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .btn-action:hover {
+            background-color: #4338ca;
+        }
+        .correct-answer {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+            transform: scale(1.02);
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+        .disabled-option {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Estilos para la tarjeta de conjugación */
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details > summary::before {
+            content: '▶';
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }
+        details[open] > summary::before {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="w-full max-w-2xl mx-auto">
+        <div class="card">
+            <div class="flex justify-center space-x-2 sm:space-x-4 mb-6 border-b pb-4">
+                <button id="btn-quiz-view" class="btn btn-nav active w-1/2">Quiz</button>
+                <button id="btn-dict-view" class="btn btn-nav w-1/2">Diccionario</button>
+            </div>
+
+            <div id="quiz-view">
+                <div id="mode-selection-view" class="text-center">
+                    <h2 class="text-2xl font-bold mb-6">Elige un modo de juego</h2>
+                    <div class="space-y-4">
+                        <button data-mode="translation" class="btn btn-action w-full text-lg">¿Cuál es la traducción?</button>
+                        <button data-mode="definition" class="btn btn-action w-full text-lg">¿Qué palabra es? (Definición)</button>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="text-center hidden">
+                    <div id="quiz-header" class="mb-4">
+                        <p class="text-sm text-gray-500">Pregunta <span id="question-count">1</span> de <span id="total-questions">10</span></p>
+                        <p class="font-semibold">Puntaje: <span id="score">0</span></p>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-bold mb-6 min-h-[100px] flex items-center justify-center" id="question-word">Cargando...</h2>
+                    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    </div>
+                    <div id="definition-container" class="hidden mt-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg text-left">
+                    </div>
+                    <button id="next-question-btn" class="btn btn-action w-full hidden mt-6">Siguiente</button>
+                </div>
+                 <div id="results-container" class="text-center hidden">
+                    <h2 class="text-3xl font-bold mb-4">¡Quiz Terminado!</h2>
+                    <p class="text-xl mb-6">Tu puntaje final es: <span id="final-score" class="font-bold"></span></p>
+                    <button id="restart-quiz-btn" class="btn btn-action w-full">Jugar de Nuevo</button>
+                    <button id="review-missed-btn" class="btn btn-nav w-full mt-3 hidden">Repasar Palabras Falladas</button>
+                    <button id="change-mode-btn" class="btn btn-nav w-full mt-3">Cambiar de Modo</button>
+                </div>
+            </div>
+
+            <div id="dictionary-view" class="hidden">
+                <h2 class="text-2xl font-bold text-center mb-4">Diccionario</h2>
+                <input type="text" id="search-input" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Buscar en inglés o español...">
+                <div id="dictionary-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+            </div>
+            
+            <div id="review-view" class="hidden">
+                 <h2 class="text-2xl font-bold text-center mb-4">Palabras para Repasar</h2>
+                 <div id="review-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 mb-6"></div>
+                 <button id="start-review-quiz-btn" class="btn btn-action w-full">Iniciar Quiz de Repaso</button>
+                 <button id="back-to-results-btn" class="btn btn-nav w-full mt-3">Volver a Resultados</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- 1. DATOS ---
+    const vocabulary = [
+    {
+        "english": "I",
+        "spanish": "yo",
+        "definition_en": "Used to refer to yourself.",
+        "definition_es": "Se usa para referirse a uno mismo.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "I am a student.",
+        "example_es": "Yo soy un estudiante."
+    },
+    {
+        "english": "you",
+        "spanish": "tú/ustedes",
+        "definition_en": "Used to refer to the person or people being addressed.",
+        "definition_es": "Se usa para referirse a la persona o personas a las que se les habla.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "You are my best friend.",
+        "example_es": "Tú eres mi mejor amigo."
+    },
+    {
+        "english": "he",
+        "spanish": "él",
+        "definition_en": "Used to refer to a man or boy.",
+        "definition_es": "Se usa para referirse a un hombre o niño.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "He went to the store.",
+        "example_es": "Él fue a la tienda."
+    },
+    {
+        "english": "she",
+        "spanish": "ella",
+        "definition_en": "Used to refer to a woman or girl.",
+        "definition_es": "Se usa para referirse a una mujer o niña.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "She is a doctor.",
+        "example_es": "Ella es una doctora."
+    },
+    {
+        "english": "it",
+        "spanish": "ello",
+        "definition_en": "Used to refer to an inanimate object, animal, or idea.",
+        "definition_es": "Se usa para referirse a un objeto inanimado, animal o idea.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "It is raining outside.",
+        "example_es": "Está lloviendo afuera."
+    },
+    {
+        "english": "we",
+        "spanish": "nosotros/as",
+        "definition_en": "Used to refer to yourself and one or more other people.",
+        "definition_es": "Se usa para referirse a uno mismo y a una o más personas.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "We are going to the cinema.",
+        "example_es": "Nosotros vamos al cine."
+    },
+    {
+        "english": "they",
+        "spanish": "ellos/as",
+        "definition_en": "Used to refer to two or more people or things.",
+        "definition_es": "Se usa para referirse a dos o más personas o cosas.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (subject)",
+        "example_en": "They live in a big city.",
+        "example_es": "Ellos viven en una ciudad grande."
+    },
+    {
+        "english": "me",
+        "spanish": "me/mí",
+        "definition_en": "Used to refer to yourself as the object of a verb or preposition.",
+        "definition_es": "Se usa para referirse a uno mismo como objeto de un verbo o preposición.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (object)",
+        "example_en": "He gave the book to me.",
+        "example_es": "Él me dio el libro."
+    },
+    {
+        "english": "him",
+        "spanish": "lo/le/a él",
+        "definition_en": "Used to refer to a man or boy as the object of a verb or preposition.",
+        "definition_es": "Se usa para referirse a un hombre o niño como objeto de un verbo o preposición.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (object)",
+        "example_en": "I saw him at the park.",
+        "example_es": "Lo vi en el parque."
+    },
+    {
+        "english": "her",
+        "spanish": "la/le/a ella",
+        "definition_en": "Used to refer to a woman or girl as the object of a verb or preposition.",
+        "definition_es": "Se usa para referirse a una mujer o niña como objeto de un verbo o preposición.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (object)",
+        "example_en": "She gave her a gift.",
+        "example_es": "Ella le dio un regalo."
+    },
+    {
+        "english": "us",
+        "spanish": "nos/nosotros/as",
+        "definition_en": "Used to refer to yourself and one or more other people as the object of a verb or preposition.",
+        "definition_es": "Se usa para referirse a uno mismo y a una o más personas como objeto de un verbo o preposición.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (object)",
+        "example_en": "He came with us.",
+        "example_es": "Él vino con nosotros."
+    },
+    {
+        "english": "them",
+        "spanish": "los/las/a ellos/as",
+        "definition_en": "Used to refer to two or more people or things as the object of a verb or preposition.",
+        "definition_es": "Se usa para referirse a dos o más personas o cosas como objeto de un verbo o preposición.",
+        "partOfSpeech": "pronoun",
+        "type": "personal (object)",
+        "example_en": "I told them a secret.",
+        "example_es": "Les conté un secreto."
+    },
+    {
+        "english": "mine",
+        "spanish": "mío/a/míos/as",
+        "definition_en": "Used to refer to a thing or things belonging to yourself.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a uno mismo.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "This book is mine.",
+        "example_es": "Este libro es mío."
+    },
+    {
+        "english": "yours",
+        "spanish": "tuyo/a/tuyos/as",
+        "definition_en": "Used to refer to a thing or things belonging to the person or people being addressed.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a la persona o personas a las que se les habla.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "Is this phone yours?",
+        "example_es": "¿Es este teléfono tuyo?"
+    },
+    {
+        "english": "his",
+        "spanish": "suyo/a/suyos/as (de él)",
+        "definition_en": "Used to refer to a thing or things belonging to a man or boy.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a un hombre o niño.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "This is his car.",
+        "example_es": "Este es su coche (de él)."
+    },
+    {
+        "english": "hers",
+        "spanish": "suyo/a/suyos/as (de ella)",
+        "definition_en": "Used to refer to a thing or things belonging to a woman or girl.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a una mujer o niña.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "That house is hers.",
+        "example_es": "Esa casa es suya (de ella)."
+    },
+    {
+        "english": "its",
+        "spanish": "suyo/a/suyos/as (de ello)",
+        "definition_en": "Used to refer to a thing or things belonging to an object or animal.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a un objeto o animal.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "The dog is playing with its toy.",
+        "example_es": "El perro está jugando con su juguete."
+    },
+    {
+        "english": "ours",
+        "spanish": "nuestro/a/nuestros/as",
+        "definition_en": "Used to refer to a thing or things belonging to yourself and one or more other people.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a uno mismo y a una o más personas.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "The house is ours.",
+        "example_es": "La casa es nuestra."
+    },
+    {
+        "english": "theirs",
+        "spanish": "suyo/a/suyos/as (de ellos)",
+        "definition_en": "Used to refer to a thing or things belonging to two or more people or things.",
+        "definition_es": "Se usa para referirse a algo o cosas que le pertenecen a dos o más personas o cosas.",
+        "partOfSpeech": "pronoun",
+        "type": "possessive",
+        "example_en": "The idea was theirs.",
+        "example_es": "La idea fue de ellos."
+    },
+    {
+        "english": "myself",
+        "spanish": "me/a mí mismo/a",
+        "definition_en": "Used to refer to yourself when you are the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a uno mismo cuando se es objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "I cooked this cake myself.",
+        "example_es": "Cociné este pastel yo mismo."
+    },
+    {
+        "english": "yourself",
+        "spanish": "te/a ti mismo/a",
+        "definition_en": "Used to refer to the person being addressed when you are the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a la persona a la que se le habla cuando se es objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "Be careful not to hurt yourself.",
+        "example_es": "Ten cuidado de no lastimarte."
+    },
+    {
+        "english": "himself",
+        "spanish": "se/a sí mismo",
+        "definition_en": "Used to refer to a man or boy when he is the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a un hombre o niño cuando él es objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "He taught himself to play guitar.",
+        "example_es": "Se enseñó a sí mismo a tocar la guitarra."
+    },
+    {
+        "english": "herself",
+        "spanish": "se/a sí misma",
+        "definition_en": "Used to refer to a woman or girl when she is the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a una mujer o niña cuando ella es objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "She dressed herself.",
+        "example_es": "Ella se vistió a sí misma."
+    },
+    {
+        "english": "itself",
+        "spanish": "se/a sí mismo/a",
+        "definition_en": "Used to refer to an inanimate object or animal when it is the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a un objeto inanimado o animal cuando es objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "The machine started itself.",
+        "example_es": "La máquina se encendió sola."
+    },
+    {
+        "english": "ourselves",
+        "spanish": "nos/a nosotros mismos",
+        "definition_en": "Used to refer to yourself and one or more other people when you are the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a uno mismo y a una o más personas cuando se es objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "We bought ourselves some food.",
+        "example_es": "Nos compramos algo de comida."
+    },
+    {
+        "english": "themselves",
+        "spanish": "se/a sí mismos/as",
+        "definition_en": "Used to refer to two or more people or things when they are the object of a verb and also the subject.",
+        "definition_es": "Se usa para referirse a dos o más personas o cosas cuando son objeto y sujeto de un verbo.",
+        "partOfSpeech": "pronoun",
+        "type": "reflexive",
+        "example_en": "They made themselves a promise.",
+        "example_es": "Se hicieron una promesa."
+    },
+    {
+        "english": "this",
+        "spanish": "este/a/esto",
+        "definition_en": "Used to refer to a person or thing that is near.",
+        "definition_es": "Se usa para referirse a una persona o cosa que está cerca.",
+        "partOfSpeech": "pronoun",
+        "type": "demonstrative",
+        "example_en": "This is my favorite color.",
+        "example_es": "Este es mi color favorito."
+    },
+    {
+        "english": "that",
+        "spanish": "ese/a/eso/aquel/aquello",
+        "definition_en": "Used to refer to a person or thing that is not near.",
+        "definition_es": "Se usa para referirse a una persona o cosa que no está cerca.",
+        "partOfSpeech": "pronoun",
+        "type": "demonstrative",
+        "example_en": "That is a beautiful house.",
+        "example_es": "Esa es una casa hermosa."
+    },
+    {
+        "english": "these",
+        "spanish": "estos/as",
+        "definition_en": "Used to refer to people or things that are near.",
+        "definition_es": "Se usa para referirse a personas o cosas que están cerca.",
+        "partOfSpeech": "pronoun",
+        "type": "demonstrative",
+        "example_en": "These are my shoes.",
+        "example_es": "Estos son mis zapatos."
+    },
+    {
+        "english": "those",
+        "spanish": "esos/as/aquellos/as",
+        "definition_en": "Used to refer to people or things that are not near.",
+        "definition_es": "Se usa para referirse a personas o cosas que no están cerca.",
+        "partOfSpeech": "pronoun",
+        "type": "demonstrative",
+        "example_en": "Those are my friends.",
+        "example_es": "Esos son mis amigos."
+    },
+    {
+        "english": "what",
+        "spanish": "qué/cuál",
+        "definition_en": "Asking for information about something.",
+        "definition_es": "Preguntando por información sobre algo.",
+        "partOfSpeech": "pronoun",
+        "type": "interrogative",
+        "example_en": "What is your name?",
+        "example_es": "¿Cuál es tu nombre?"
+    },
+    {
+        "english": "which",
+        "spanish": "cuál/cuáles",
+        "definition_en": "Asking for a choice from a limited set.",
+        "definition_es": "Preguntando por una elección de un conjunto limitado.",
+        "partOfSpeech": "pronoun",
+        "type": "interrogative",
+        "example_en": "Which one do you prefer?",
+        "example_es": "¿Cuál prefieres?"
+    },
+    {
+        "english": "who",
+        "spanish": "quién/quiénes",
+        "definition_en": "Asking about the identity of a person or people.",
+        "definition_es": "Preguntando por la identidad de una persona o personas.",
+        "partOfSpeech": "pronoun",
+        "type": "interrogative",
+        "example_en": "Who is at the door?",
+        "example_es": "¿Quién está en la puerta?"
+    },
+    {
+        "english": "whom",
+        "spanish": "a quién",
+        "definition_en": "Used as the object of a verb or preposition to refer to a person.",
+        "definition_es": "Se usa como objeto de un verbo o preposición para referirse a una persona.",
+        "partOfSpeech": "pronoun",
+        "type": "interrogative",
+        "example_en": "To whom did you give the keys?",
+        "example_es": "¿A quién le diste las llaves?"
+    },
+    {
+        "english": "whose",
+        "spanish": "de quién",
+        "definition_en": "Asking about the owner of something.",
+        "definition_es": "Preguntando por el dueño de algo.",
+        "partOfSpeech": "pronoun",
+        "type": "interrogative",
+        "example_en": "Whose book is this?",
+        "example_es": "¿De quién es este libro?"
+    },
+    {
+        "english": "whoever",
+        "spanish": "quienquiera",
+        "definition_en": "Any person at all.",
+        "definition_es": "Cualquier persona en absoluto.",
+        "partOfSpeech": "pronoun",
+        "type": "relative/indefinite",
+        "example_en": "Whoever wants to come is welcome.",
+        "example_es": "Quienquiera que quiera venir es bienvenido."
+    },
+    {
+        "english": "whatever",
+        "spanish": "lo que sea",
+        "definition_en": "Anything or everything that.",
+        "definition_es": "Cualquier cosa o todo lo que.",
+        "partOfSpeech": "pronoun",
+        "type": "relative/indefinite",
+        "example_en": "You can eat whatever you want.",
+        "example_es": "Puedes comer lo que quieras."
+    },
+    {
+        "english": "whichever",
+        "spanish": "cualquiera",
+        "definition_en": "Referring to any one of a given set.",
+        "definition_es": "Se refiere a cualquiera de un conjunto dado.",
+        "partOfSpeech": "pronoun",
+        "type": "relative/indefinite",
+        "example_en": "Take whichever book you like.",
+        "example_es": "Toma el libro que te guste."
+    },
+    {
+        "english": "who",
+        "spanish": "quien/que",
+        "definition_en": "Used to introduce a relative clause referring to a person or people.",
+        "definition_es": "Se usa para introducir una cláusula relativa que se refiere a una persona o personas.",
+        "partOfSpeech": "pronoun",
+        "type": "relative",
+        "example_en": "The man who called you is here.",
+        "example_es": "El hombre que te llamó está aquí."
+    },
+    {
+        "english": "whom",
+        "spanish": "a quien/que",
+        "definition_en": "Used as the object of a verb or preposition in a relative clause.",
+        "definition_es": "Se usa como objeto de un verbo o preposición en una cláusula relativa.",
+        "partOfSpeech": "pronoun",
+        "type": "relative",
+        "example_en": "This is the person whom I admire.",
+        "example_es": "Esta es la persona a quien admiro."
+    },
+    {
+        "english": "which",
+        "spanish": "el/la/los/las cual/es",
+        "definition_en": "Used to introduce a relative clause referring to a thing or animal.",
+        "definition_es": "Se usa para introducir una cláusula relativa que se refiere a una cosa o animal.",
+        "partOfSpeech": "pronoun",
+        "type": "relative",
+        "example_en": "The car, which is red, is fast.",
+        "example_es": "El coche, el cual es rojo, es rápido."
+    },
+    {
+        "english": "that",
+        "spanish": "que",
+        "definition_en": "Used to introduce a relative clause referring to a person, thing, or animal.",
+        "definition_es": "Se usa para introducir una cláusula relativa que se refiere a una persona, cosa o animal.",
+        "partOfSpeech": "pronoun",
+        "type": "relative",
+        "example_en": "This is the book that I bought.",
+        "example_es": "Este es el libro que compré."
+    },
+    {
+        "english": "what",
+        "spanish": "lo que",
+        "definition_en": "Used to refer to the thing or things that.",
+        "definition_es": "Se usa para referirse a la cosa o cosas que.",
+        "partOfSpeech": "pronoun",
+        "type": "relative",
+        "example_en": "I know what you mean.",
+        "example_es": "Sé lo que quieres decir."
+    },
+    {
+        "english": "all",
+        "spanish": "todo/s",
+        "definition_en": "The whole quantity or number of.",
+        "definition_es": "La cantidad o número total de.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "All are welcome.",
+        "example_es": "Todos son bienvenidos."
+    },
+    {
+        "english": "another",
+        "spanish": "otro/a",
+        "definition_en": "An additional person or thing.",
+        "definition_es": "Una persona o cosa adicional.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Can I have another?",
+        "example_es": "¿Puedo tener otro?"
+    },
+    {
+        "english": "any",
+        "spanish": "cualquiera",
+        "definition_en": "Used to refer to one or some of a thing or number of things, no matter how much or many.",
+        "definition_es": "Se usa para referirse a uno o algunos de una cosa o número de cosas, sin importar cuánto o cuántos.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "I don't have any.",
+        "example_es": "No tengo ninguno."
+    },
+    {
+        "english": "anybody",
+        "spanish": "cualquiera",
+        "definition_en": "Any person.",
+        "definition_es": "Cualquier persona.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Can anybody help me?",
+        "example_es": "¿Alguien puede ayudarme?"
+    },
+    {
+        "english": "anyone",
+        "spanish": "cualquiera",
+        "definition_en": "Any person.",
+        "definition_es": "Cualquier persona.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Is anyone home?",
+        "example_es": "¿Hay alguien en casa?"
+    },
+    {
+        "english": "anything",
+        "spanish": "cualquier cosa",
+        "definition_en": "A thing of any kind.",
+        "definition_es": "Una cosa de cualquier tipo.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Do you need anything?",
+        "example_es": "¿Necesitas algo?"
+    },
+    {
+        "english": "both",
+        "spanish": "ambos",
+        "definition_en": "Used to refer to two people or things together.",
+        "definition_es": "Se usa para referirse a dos personas o cosas juntas.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Both of them are coming.",
+        "example_es": "Ambos van a venir."
+    },
+    {
+        "english": "each",
+        "spanish": "cada uno",
+        "definition_en": "Every one of two or more things or people.",
+        "definition_es": "Cada una de dos o más cosas o personas.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Each of the students passed the test.",
+        "example_es": "Cada uno de los estudiantes pasó el examen."
+    },
+    {
+        "english": "either",
+        "spanish": "cualquiera de los dos",
+        "definition_en": "Used to refer to one of two alternatives.",
+        "definition_es": "Se usa para referirse a una de dos alternativas.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "You can have either.",
+        "example_es": "Puedes tener cualquiera de los dos."
+    },
+    {
+        "english": "everybody",
+        "spanish": "todos",
+        "definition_en": "Every person.",
+        "definition_es": "Cada persona.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Everybody is here.",
+        "example_es": "Todos están aquí."
+    },
+    {
+        "english": "everyone",
+        "spanish": "todos",
+        "definition_en": "Every person.",
+        "definition_es": "Cada persona.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Everyone loves chocolate.",
+        "example_es": "A todo el mundo le encanta el chocolate."
+    },
+    {
+        "english": "everything",
+        "spanish": "todo",
+        "definition_en": "All things.",
+        "definition_es": "Todas las cosas.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Everything is ready.",
+        "example_es": "Todo está listo."
+    },
+    {
+        "english": "few",
+        "spanish": "pocos/as",
+        "definition_en": "A small number of people or things.",
+        "definition_es": "Un pequeño número de personas o cosas.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Few people know the answer.",
+        "example_es": "Pocas personas saben la respuesta."
+    },
+    {
+        "english": "many",
+        "spanish": "muchos/as",
+        "definition_en": "A large number of people or things.",
+        "definition_es": "Un gran número de personas o cosas.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Many people attended the event.",
+        "example_es": "Muchas personas asistieron al evento."
+    },
+    {
+        "english": "nobody",
+        "spanish": "nadie",
+        "definition_en": "No person; no one.",
+        "definition_es": "Ninguna persona; nadie.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Nobody knows the truth.",
+        "example_es": "Nadie sabe la verdad."
+    },
+    {
+        "english": "none",
+        "spanish": "ninguno/a",
+        "definition_en": "Not any; no one.",
+        "definition_es": "Ninguno; nadie.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "None of the students passed.",
+        "example_es": "Ninguno de los estudiantes aprobó."
+    },
+    {
+        "english": "one",
+        "spanish": "uno",
+        "definition_en": "A person or thing of a specified kind.",
+        "definition_es": "Una persona o cosa de un tipo específico.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "One must be careful.",
+        "example_es": "Uno debe tener cuidado."
+    },
+    {
+        "english": "several",
+        "spanish": "varios/as",
+        "definition_en": "More than two but not many.",
+        "definition_es": "Más de dos pero no muchos.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Several people agreed with me.",
+        "example_es": "Varias personas estuvieron de acuerdo conmigo."
+    },
+    {
+        "english": "some",
+        "spanish": "algunos/as",
+        "definition_en": "An unspecified amount or number of.",
+        "definition_es": "Una cantidad o número no especificado de.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "I need some water.",
+        "example_es": "Necesito un poco de agua."
+    },
+    {
+        "english": "somebody",
+        "spanish": "alguien",
+        "definition_en": "An unspecified or unknown person.",
+        "definition_es": "Una persona no especificada o desconocida.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Somebody is at the door.",
+        "example_es": "Alguien está en la puerta."
+    },
+    {
+        "english": "someone",
+        "spanish": "alguien",
+        "definition_en": "An unspecified or unknown person.",
+        "definition_es": "Una persona no especificada o desconocida.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "Someone left this package.",
+        "example_es": "Alguien dejó este paquete."
+    },
+    {
+        "english": "something",
+        "spanish": "algo",
+        "definition_en": "A thing of an unspecified or unknown kind.",
+        "definition_es": "Una cosa de un tipo no especificado o desconocido.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "I need to tell you something.",
+        "example_es": "Necesito decirte algo."
+    },
+    {
+        "english": "no one",
+        "spanish": "nadie",
+        "definition_en": "Not a single person.",
+        "definition_es": "Ni una sola persona.",
+        "partOfSpeech": "pronoun",
+        "type": "indefinite",
+        "example_en": "No one was there.",
+        "example_es": "No había nadie allí."
+    },
+    {
+        "english": "each other",
+        "spanish": "el uno al otro/unos a otros",
+        "definition_en": "Used to show that two people or groups are doing something to or for the other.",
+        "definition_es": "Se usa para mostrar que dos personas o grupos se están haciendo algo mutuamente.",
+        "partOfSpeech": "pronoun",
+        "type": "reciprocal",
+        "example_en": "They looked at each other.",
+        "example_es": "Se miraron el uno al otro."
+    },
+    {
+        "english": "one another",
+        "spanish": "unos a otros",
+        "definition_en": "Used to show that three or more people or groups are doing something to or for the others.",
+        "definition_es": "Se usa para mostrar que tres o más personas o grupos se están haciendo algo mutuamente.",
+        "partOfSpeech": "pronoun",
+        "type": "reciprocal",
+        "example_en": "They all helped one another.",
+        "example_es": "Todos se ayudaron unos a otros."
+    }
+
+    ];
+
+    // --- 2. ESTADO DE LA APLICACIÓN ---
+    let state = {
+        currentView: 'quiz',
+        quiz: { questions: [], missedWords: [], currentQuestionIndex: 0, score: 0, answered: false, mode: null },
+    };
+
+    const QUIZ_LENGTH = 10;
+    const NUM_OPTIONS = 4;
+
+    // --- 3. SELECTORES DEL DOM ---
+    const elements = {
+        btnQuizView: document.getElementById('btn-quiz-view'), btnDictView: document.getElementById('btn-dict-view'),
+        quizView: document.getElementById('quiz-view'), dictionaryView: document.getElementById('dictionary-view'),
+        reviewView: document.getElementById('review-view'), modeSelectionView: document.getElementById('mode-selection-view'),
+        quizContainer: document.getElementById('quiz-container'), resultsContainer: document.getElementById('results-container'),
+        questionCount: document.getElementById('question-count'), totalQuestions: document.getElementById('total-questions'),
+        score: document.getElementById('score'), questionWord: document.getElementById('question-word'),
+        optionsContainer: document.getElementById('options-container'), definitionContainer: document.getElementById('definition-container'),
+        nextQuestionBtn: document.getElementById('next-question-btn'), finalScore: document.getElementById('final-score'),
+        restartQuizBtn: document.getElementById('restart-quiz-btn'), reviewMissedBtn: document.getElementById('review-missed-btn'),
+        changeModeBtn: document.getElementById('change-mode-btn'), searchInput: document.getElementById('search-input'),
+        dictionaryList: document.getElementById('dictionary-list'), reviewList: document.getElementById('review-list'),
+        startReviewQuizBtn: document.getElementById('start-review-quiz-btn'), backToResultsBtn: document.getElementById('back-to-results-btn'),
+    };
+
+    // --- 4. FUNCIONES ---
+
+    const createConjugationCardHTML = (card) => {
+        if (!card) return '';
+        const formatTenseName = (tense) => tense.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const tensesHTML = Object.entries(card).map(([tense, conjugations]) => {
+            const rows = conjugations.all 
+                ? `<tr><td class="px-2 py-1 font-medium">Todos</td><td class="px-2 py-1">${conjugations.all}</td></tr>`
+                : Object.entries(conjugations).map(([pronoun, verb]) => `<tr><td class="px-2 py-1 font-medium">${pronoun}</td><td class="px-2 py-1">${verb}</td></tr>`).join('');
+            return `<div class="mb-3"><h4 class="font-semibold text-sm text-gray-700 mb-1">${formatTenseName(tense)}</h4><table class="w-full text-sm border border-gray-200 rounded-md"><tbody>${rows}</tbody></table></div>`;
+        }).join('');
+        return `<div class="mt-3 pt-3 border-t border-indigo-200"><details><summary class="font-semibold text-indigo-700 cursor-pointer hover:text-indigo-900 transition-colors">Tabla de Conjugación</summary><div class="mt-2 pl-2 border-l-2 border-indigo-100">${tensesHTML}</div></details></div>`;
+    };
+    
+    const switchView = (view) => {
+        state.currentView = view;
+        elements.quizView.style.display = 'none';
+        elements.dictionaryView.style.display = 'none';
+        elements.reviewView.style.display = 'none';
+        elements.btnQuizView.classList.remove('active');
+        elements.btnDictView.classList.remove('active');
+
+        if (view === 'quiz') {
+            elements.quizView.style.display = 'block';
+            elements.btnQuizView.classList.add('active');
+            if (!state.quiz.mode) { showModeSelection(); }
+        } else if (view === 'dictionary') {
+            elements.dictionaryView.style.display = 'block';
+            elements.btnDictView.classList.add('active');
+            renderDictionary();
+        } else if (view === 'review') {
+            elements.resultsContainer.style.display = 'none';
+            elements.reviewView.style.display = 'block';
+            renderReviewList();
+        }
+    };
+    
+    const showModeSelection = () => {
+        elements.modeSelectionView.style.display = 'block';
+        elements.quizContainer.style.display = 'none';
+        elements.resultsContainer.style.display = 'none';
+        elements.reviewView.style.display = 'none';
+    };
+
+    const renderDictionary = (filter = '') => {
+        const lowerCaseFilter = filter.toLowerCase();
+        const filteredVocab = vocabulary.filter(item => item.english.toLowerCase().includes(lowerCaseFilter) || item.spanish.toLowerCase().includes(lowerCaseFilter)).sort((a, b) => a.english.localeCompare(b.english));
+        if (filteredVocab.length === 0) {
+            elements.dictionaryList.innerHTML = `<p class="text-center text-gray-500">No se encontraron resultados.</p>`;
+            return;
+        }
+        elements.dictionaryList.innerHTML = filteredVocab.map(item => `
+            <div class="p-3 bg-gray-50 rounded-lg border">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-start">
+                    <div>
+                        <div class="flex items-center gap-x-3 mb-1">
+                            <p class="font-bold text-lg text-indigo-700">${item.english}</p>
+                            <span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">${item.partOfSpeech}</span>
+                        </div>
+                        <p class="font-semibold text-lg text-gray-800">${item.spanish}</p>
+                    </div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600 space-y-1">
+                   <p><strong class="font-medium text-gray-900">EN:</strong> ${item.definition_en}</p>
+                   <p><strong class="font-medium text-gray-900">ES:</strong> ${item.definition_es}</p>
+                </div>
+                ${createConjugationCardHTML(item.conjugation_card)}
+            </div>
+        `).join('');
+    };
+
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    const startQuiz = (isReviewMode = false, mode) => {
+        state.quiz.mode = mode || state.quiz.mode;
+        let sourceVocab = (isReviewMode && state.quiz.missedWords.length > 0) ? [...state.quiz.missedWords] : vocabulary;
+        if (isReviewMode) state.quiz.missedWords = []; else state.quiz.missedWords = [];
+        const shuffledVocab = shuffleArray([...sourceVocab]);
+        const quizSize = isReviewMode ? sourceVocab.length : Math.min(QUIZ_LENGTH, vocabulary.length);
+        state.quiz.questions = shuffledVocab.slice(0, quizSize);
+        state.quiz.currentQuestionIndex = 0;
+        state.quiz.score = 0;
+        state.quiz.answered = false;
+        elements.modeSelectionView.style.display = 'none';
+        elements.quizContainer.style.display = 'block';
+        elements.resultsContainer.style.display = 'none';
+        elements.reviewView.style.display = 'none';
+        elements.totalQuestions.textContent = state.quiz.questions.length;
+        renderQuestion();
+    };
+    
+    const getWrongOptions = (correctItem, answerField) => {
+        const wrongOptions = [];
+        const vocabCopy = [...vocabulary];
+        while (wrongOptions.length < NUM_OPTIONS - 1 && vocabCopy.length > 1) {
+            const randomIndex = Math.floor(Math.random() * vocabCopy.length);
+            const randomItem = vocabCopy[randomIndex];
+            if (randomItem[answerField] !== correctItem[answerField] && !wrongOptions.some(opt => opt === randomItem[answerField])) {
+                wrongOptions.push(randomItem[answerField]);
+            }
+            vocabCopy.splice(randomIndex, 1);
+        }
+        return wrongOptions;
+    };
+
+    const renderQuestion = () => {
+        state.quiz.answered = false;
+        elements.nextQuestionBtn.classList.add('hidden');
+        elements.definitionContainer.classList.add('hidden');
+        elements.score.textContent = state.quiz.score;
+        elements.questionCount.textContent = state.quiz.currentQuestionIndex + 1;
+        const question = state.quiz.questions[state.quiz.currentQuestionIndex];
+        let questionText, correctAnswer, options;
+        if (state.quiz.mode === 'definition') {
+            questionText = question.definition_en;
+            correctAnswer = question.english;
+            const wrongAnswers = getWrongOptions(question, 'english');
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        } else {
+            const isEnglishQuestion = Math.random() < 0.5;
+            const questionField = isEnglishQuestion ? 'english' : 'spanish';
+            const answerField = isEnglishQuestion ? 'spanish' : 'english';
+            questionText = question[questionField];
+            correctAnswer = question[answerField];
+            const wrongAnswers = getWrongOptions(question, answerField);
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        }
+        elements.questionWord.textContent = questionText;
+        elements.optionsContainer.innerHTML = options.map(option => `<button class="btn btn-option" data-answer="${option === correctAnswer}">${option}</button>`).join('');
+        document.querySelectorAll('.btn-option').forEach(button => button.addEventListener('click', handleAnswer));
+    };
+
+    const handleAnswer = (e) => {
+        if (state.quiz.answered) return;
+        state.quiz.answered = true;
+        const selectedButton = e.target;
+        const isCorrect = selectedButton.dataset.answer === 'true';
+        const question = state.quiz.questions[state.quiz.currentQuestionIndex];
+        if (isCorrect) {
+            state.quiz.score++;
+            selectedButton.classList.add('correct-answer');
+        } else {
+            selectedButton.classList.add('wrong-answer');
+            if (!state.quiz.missedWords.includes(question)) { state.quiz.missedWords.push(question); }
+        }
+        document.querySelectorAll('.btn-option').forEach(button => {
+            button.classList.add('disabled-option');
+            if (button.dataset.answer === 'true') { button.classList.add('correct-answer'); }
+        });
+        elements.definitionContainer.innerHTML = `
+            <div class="flex items-center gap-x-3"><p class="font-bold text-lg text-indigo-800">${question.english}</p><span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">${question.partOfSpeech}</span></div>
+            <p class="font-semibold text-gray-700 mt-1">${question.spanish}</p>
+            <div class="mt-2 text-sm text-gray-600 space-y-1"><p><strong class="font-medium text-gray-900">EN:</strong> ${question.definition_en}</p><p><strong class="font-medium text-gray-900">ES:</strong> ${question.definition_es}</p></div>
+            ${createConjugationCardHTML(question.conjugation_card)}
+        `;
+        elements.definitionContainer.classList.remove('hidden');
+        elements.definitionContainer.classList.add('fade-in');
+        elements.score.textContent = state.quiz.score;
+        elements.nextQuestionBtn.classList.remove('hidden');
+    };
+
+    const nextQuestion = () => {
+        state.quiz.currentQuestionIndex++;
+        if (state.quiz.currentQuestionIndex < state.quiz.questions.length) { renderQuestion(); } 
+        else { showResults(); }
+    };
+    
+    const showResults = () => {
+        elements.quizContainer.style.display = 'none';
+        elements.reviewView.style.display = 'none';
+        elements.resultsContainer.style.display = 'block';
+        elements.resultsContainer.classList.add('fade-in');
+        elements.finalScore.textContent = `${state.quiz.score} / ${state.quiz.questions.length}`;
+        elements.reviewMissedBtn.style.display = state.quiz.missedWords.length > 0 ? 'block' : 'none';
+    };
+
+    const renderReviewList = () => {
+        if (state.quiz.missedWords.length === 0) {
+            elements.reviewList.innerHTML = `<p class="text-center text-gray-500">¡No hay palabras para repasar, felicidades!</p>`;
+            elements.startReviewQuizBtn.style.display = 'none';
+            return;
+        }
+        elements.startReviewQuizBtn.style.display = 'block';
+        elements.reviewList.innerHTML = state.quiz.missedWords
+            .sort((a, b) => a.english.localeCompare(b.english))
+            .map(item => `<div class="p-3 bg-gray-50 rounded-lg border"><p class="font-bold text-lg text-indigo-700">${item.english}</p><p class="font-semibold text-lg text-gray-800">${item.spanish}</p></div>`).join('');
+    };
+
+    // --- 5. EVENT LISTENERS ---
+    elements.btnQuizView.addEventListener('click', () => switchView('quiz'));
+    elements.btnDictView.addEventListener('click', () => switchView('dictionary'));
+    elements.searchInput.addEventListener('input', (e) => renderDictionary(e.target.value));
+    document.querySelectorAll('#mode-selection-view button').forEach(button => {
+        button.addEventListener('click', (e) => startQuiz(false, e.target.dataset.mode));
+    });
+    elements.nextQuestionBtn.addEventListener('click', nextQuestion);
+    elements.restartQuizBtn.addEventListener('click', () => startQuiz(false, state.quiz.mode));
+    elements.reviewMissedBtn.addEventListener('click', () => switchView('review'));
+    elements.startReviewQuizBtn.addEventListener('click', () => startQuiz(true, state.quiz.mode));
+    elements.backToResultsBtn.addEventListener('click', showResults);
+    elements.changeModeBtn.addEventListener('click', () => { state.quiz.mode = null; showModeSelection(); });
+    
+    // --- 6. INICIALIZACIÓN ---
+    document.addEventListener('DOMContentLoaded', () => { switchView('quiz'); });
+</script>
+</body>
+</html>
