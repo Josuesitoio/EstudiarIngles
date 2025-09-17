@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering Adjectives & Adverbs | Aprende Inglés</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        // Configuración de Tailwind para usar la fuente 'Inter'
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .main-nav::-webkit-scrollbar { display: none; }
+        .main-nav { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-600 antialiased">
+
+    <div id="app-wrapper" class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="relative text-center mb-8 lg:mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Mastering Adjectives & Adverbs
+            </h1>
+            <p class="mt-3 text-lg text-slate-500 max-w-2xl mx-auto">
+                Aprende a describir el mundo y la frecuencia de las acciones con precisión.
+            </p>
+            <button id="hamburger-btn" class="lg:hidden absolute top-0 right-0 p-2 rounded-md text-slate-600 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                <span class="sr-only">Abrir menú principal</span>
+                <svg id="menu-open-icon" class="block h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="O 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+                <svg id="menu-close-icon" class="hidden h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6112 12" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            <aside class="lg:col-span-3 lg:sticky lg:top-8 self-start mb-8 lg:mb-0">
+                <nav id="nav-menu" class="hidden lg:flex flex-col gap-2 pb-4 lg:pb-0 bg-white lg:bg-transparent rounded-lg p-4 lg:p-0 shadow-lg lg:shadow-none">
+                    </nav>
+            </aside>
+            <main id="content-area" class="lg:col-span-9">
+                </main>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const contentData = {
+            "commonAdjectives": {
+                "title": "Adjetivos Comunes",
+                "subtitle": "Describiendo el Mundo",
+                "accentColor": "#3b82f6", // Blue-500
+                "explanation": "Los adjetivos son palabras que describen o califican a los sustantivos (personas, lugares, cosas). A diferencia del español, en inglés tienen dos reglas de oro: casi siempre van ANTES del sustantivo y NUNCA tienen forma plural.",
+                "html": `
+                    <div class="space-y-8 mt-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Reglas de Oro</h3>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <p class="font-semibold text-slate-700">1. Posición: Antes del sustantivo</p>
+                                    <p class="mt-2 text-red-600">Incorrecto: I have a car <span class="font-bold">red</span>.</p>
+                                    <p class="mt-1 text-green-600">Correcto: I have a <span class="font-bold">red</span> car.</p>
+                                </div>
+                                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <p class="font-semibold text-slate-700">2. Invariables: No tienen plural</p>
+                                    <p class="mt-2 text-red-600">Incorrecto: They are <span class="font-bold">intelligents</span> students.</p>
+                                    <p class="mt-1 text-green-600">Correcto: They are <span class="font-bold">intelligent</span> students.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Tabla de Opuestos Comunes</h3>
+                            <div class="overflow-x-auto rounded-lg border border-slate-200">
+                               <table class="w-full text-sm">
+                                 <thead class="bg-slate-50"><tr><th class="p-3 font-semibold text-left">Adjetivo</th><th class="p-3 font-semibold text-left">Opuesto</th></tr></thead>
+                                 <tbody class="bg-white divide-y divide-slate-200">
+                                   <tr><td class="p-3">big (grande)</td><td class="p-3">small (pequeño)</td></tr>
+                                   <tr><td class="p-3">good (bueno)</td><td class="p-3">bad (malo)</td></tr>
+                                   <tr><td class="p-3">hot (caliente)</td><td class="p-3">cold (frío)</td></tr>
+                                   <tr><td class="p-3">new (nuevo)</td><td class="p-3">old (viejo)</td></tr>
+                                   <tr><td class="p-3">happy (feliz)</td><td class="p-3">sad (triste)</td></tr>
+                                   <tr><td class="p-3">easy (fácil)</td><td class="p-3">difficult (difícil)</td></tr>
+                                 </tbody>
+                               </table>
+                             </div>
+                        </div>
+                    </div>`
+            },
+            "possessiveAdjectives": {
+                "title": "Adjetivos Posesivos",
+                "subtitle": "Indicando Pertenencia",
+                "accentColor": "#8b5cf6", // Violet-500
+                "explanation": "Los adjetivos posesivos indican a quién le pertenece algo. Son una de las formas más comunes de mostrar posesión y, al igual que los otros adjetivos, siempre van seguidos de un sustantivo.",
+                "html": `
+                    <div class="space-y-8 mt-8">
+                        <div>
+                           <h3 class="text-lg font-semibold text-slate-800 mb-4">Tabla de Equivalencias</h3>
+                           <div class="overflow-x-auto rounded-lg border border-slate-200">
+                               <table class="w-full text-sm">
+                                 <thead class="bg-slate-50"><tr><th class="p-3 font-semibold text-left">Pronombre Sujeto</th><th class="p-3 font-semibold text-left">Adjetivo Posesivo</th><th class="p-3 font-semibold text-left">Ejemplo</th></tr></thead>
+                                 <tbody class="bg-white divide-y divide-slate-200">
+                                   <tr><td class="p-3">I</td><td class="p-3"><b>my</b> (mi, mis)</td><td class="p-3">This is <b>my</b> book.</td></tr>
+                                   <tr><td class="p-3">You</td><td class="p-3"><b>your</b> (tu, tus)</td><td class="p-3">Is that <b>your</b> key?</td></tr>
+                                   <tr><td class="p-3">He</td><td class="p-3"><b>his</b> (su, sus de él)</td><td class="p-3"><b>His</b> name is John.</td></tr>
+                                   <tr><td class="p-3">She</td><td class="p-3"><b>her</b> (su, sus de ella)</td><td class="p-3">I like <b>her</b> dress.</td></tr>
+                                   <tr><td class="p-3">It</td><td class="p-3"><b>its</b> (su, sus de eso)</td><td class="p-3">The dog wagged <b>its</b> tail.</td></tr>
+                                   <tr><td class="p-3">We</td><td class="p-3"><b>our</b> (nuestro/a/os/as)</td><td class="p-3"><b>Our</b> team won.</td></tr>
+                                   <tr><td class="p-3">They</td><td class="p-3"><b>their</b> (su, sus de ellos/as)</td><td class="p-3">What are <b>their</b> names?</td></tr>
+                                 </tbody>
+                               </table>
+                             </div>
+                        </div>
+                         <div class="p-4 bg-violet-50 rounded-lg border border-violet-200">
+                           <h4 class="font-semibold text-violet-800">¡No los confundas!</h4>
+                           <p class="mt-2 text-sm text-slate-700">Es muy común cometer estos errores. ¡Apréndelos bien!</p>
+                           <ul class="mt-2 text-sm list-disc list-inside space-y-1">
+                               <li><b>Your vs. You're:</b> <code class="text-sm">Your</code> es posesivo (your car). <code class="text-sm">You're</code> es la contracción de "you are" (You're tall).</li>
+                               <li><b>Its vs. It's:</b> <code class="text-sm">Its</code> es posesivo (its color). <code class="text-sm">It's</code> es la contracción de "it is" (It's a nice day).</li>
+                               <li><b>Their vs. They're vs. There:</b> <code class="text-sm">Their</code> es posesivo (their house). <code class="text-sm">They're</code> es "they are". <code class="text-sm">There</code> indica un lugar (over there).</li>
+                           </ul>
+                        </div>
+                    </div>`
+            },
+            "frequencyAdverbs": {
+                "title": "Adverbios de Frecuencia",
+                "subtitle": "¿Con qué frecuencia?",
+                "accentColor": "#14b8a6", // Teal-500
+                "explanation": "Los adverbios de frecuencia nos dicen qué tan seguido ocurre una acción. Su correcta ubicación en la oración es clave para sonar natural. La regla principal depende del tipo de verbo que acompañan.",
+                "html": `
+                     <div class="space-y-8 mt-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Escala de Frecuencia</h3>
+                             <ul class="space-y-2 text-sm">
+                                <li class="flex items-center"><div class="w-full bg-slate-200 rounded-full h-4"><div class="bg-teal-500 h-4 rounded-full" style="width: 100%"></div></div><span class="ml-4 font-semibold">Always (100%)</span></li>
+                                <li class="flex items-center"><div class="w-full bg-slate-200 rounded-full h-4"><div class="bg-teal-500 h-4 rounded-full" style="width: 90%"></div></div><span class="ml-4 font-semibold">Usually (90%)</span></li>
+                                <li class="flex items-center"><div class="w-full bg-slate-200 rounded-full h-4"><div class="bg-teal-500 h-4 rounded-full" style="width: 70%"></div></div><span class="ml-4 font-semibold">Often (70%)</span></li>
+                                <li class="flex items-center"><div class="w-full bg-slate-200 rounded-full h-4"><div class="bg-teal-500 h-4 rounded-full" style="width: 50%"></div></div><span class="ml-4 font-semibold">Sometimes (50%)</span></li>
+                                <li class="flex items-center"><div class="w-full bg-slate-200 rounded-full h-4"><div class="bg-teal-500 h-4 rounded-full" style="width: 10%"></div></div><span class="ml-4 font-semibold">Rarely / Seldom (10%)</span></li>
+                                <li class="flex items-center"><div class="w-full bg-slate-200 rounded-full h-4"><div class="bg-teal-500 h-4 rounded-full" style="width: 0%"></div></div><span class="ml-4 font-semibold">Never (0%)</span></li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Posición en la Oración</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="p-4 bg-teal-50 rounded-lg border border-teal-200">
+                                    <p class="font-semibold text-slate-700">Con verbos normales</p>
+                                    <p class="text-sm mt-1">El adverbio va <b>ANTES</b> del verbo.</p>
+                                    <p class="mt-2" data-accent-color="true">I <b>always</b> <u>remember</u> your birthday.</p>
+                                    <p class="mt-1" data-accent-color="true">He <b>never</b> <u>eats</u> meat.</p>
+                                </div>
+                                <div class="p-4 bg-teal-50 rounded-lg border border-teal-200">
+                                    <p class="font-semibold text-slate-700">Con el verbo 'to be' (am, is, are)</p>
+                                    <p class="text-sm mt-1">El adverbio va <b>DESPUÉS</b> del verbo.</p>
+                                    <p class="mt-2" data-accent-color="true">You <u>are</u> <b>often</b> late.</p>
+                                    <p class="mt-1" data-accent-color="true">She <u>is</u> <b>sometimes</b> tired.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            quiz: {
+                title: 'Quiz Interactivo',
+                subtitle: 'Pon a prueba tu conocimiento',
+                accentColor: '#0ea5e9' // Sky-500
+            }
+        };
+
+        const quizData = [
+            { question: "That is not my book. It is ___ book.", options: ["he", "him", "his", "he's"], correct: 2 },
+            { question: "I bought a ___ shirt.", options: ["new blue", "blue new", "news blues", "blue's new"], correct: 0 },
+            { question: "They ___ go to the cinema on weekends.", options: ["often", "are often", "often are", "go often"], correct: 0 },
+            { question: "The dog is chasing ___ tail.", options: ["it's", "its'", "it", "its"], correct: 3 },
+            { question: "My sisters are very ___.", options: ["tall", "talls", "talles", "the tall"], correct: 0 },
+            { question: "She ___ late for class.", options: ["never is", "is never", "nevers", "is nevers"], correct: 1 },
+            { question: "What is ___ phone number?", options: ["you", "yours", "your", "you're"], correct: 2 },
+            { question: "___ a beautiful cat!", options: ["Its", "It's", "It is", "Its'"], correct: 1 },
+            { question: "We ___ watch TV after dinner.", options: ["usually are", "are usually", "usually", "usual"], correct: 2 },
+            { question: "I can't find ___ keys.", options: ["I", "mine", "me", "my"], correct: 3 }
+        ];
+
+        // --- SCRIPT LOGIC ---
+        const navMenu = document.getElementById('nav-menu');
+        const contentArea = document.getElementById('content-area');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const menuOpenIcon = document.getElementById('menu-open-icon');
+        const menuCloseIcon = document.getElementById('menu-close-icon');
+
+        let state = {
+            currentView: 'commonAdjectives',
+            quiz: { currentQuestionIndex: 0, score: 0, answered: false }
+        };
+        
+        const icons = {
+            commonAdjectives: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd" /></svg>`,
+            possessiveAdjectives: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4z" /></svg>`,
+            frequencyAdverbs: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>`,
+            quiz: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>`,
+        };
+
+        function renderNav() {
+            navMenu.innerHTML = Object.keys(contentData).map(key => {
+                const data = contentData[key];
+                const isActive = state.currentView === key;
+                const activeClasses = 'bg-indigo-600 text-white shadow-lg';
+                const inactiveClasses = 'text-slate-500 hover:bg-slate-100 hover:text-slate-800';
+                return `
+                    <button class="btn-nav w-full flex-shrink-0 lg:w-full flex items-center text-left text-md font-semibold rounded-lg p-3 transition-all duration-200 ease-in-out ${isActive ? activeClasses : inactiveClasses}" data-section="${key}">
+                        ${icons[key] || ''}
+                        <span>${data.title}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function applyAccentColor(accent) {
+            document.querySelectorAll('[data-accent-color="true"]').forEach(el => {
+                el.style.borderLeftColor = accent;
+                el.querySelectorAll('b').forEach(b => b.style.color = accent);
+            });
+            document.querySelectorAll('code').forEach(el => {
+                el.style.backgroundColor = `#e2e8f0`; // slate-200
+                el.style.padding = '2px 6px';
+                el.style.borderRadius = '4px';
+                el.style.fontFamily = 'monospace';
+            });
+        }
+
+        function renderContent() {
+            const viewKey = state.currentView;
+            const data = contentData[viewKey];
+            
+            if (viewKey === 'quiz') {
+                renderQuiz();
+                return;
+            }
+
+            contentArea.innerHTML = `
+                <div class="card bg-white rounded-2xl shadow-lg p-6 sm:p-8 transition-all duration-300 animate-fade-in" style="border-top: 4px solid ${data.accentColor};">
+                    <h2 class="text-3xl font-bold text-slate-900">${data.title} <span class="text-slate-400 font-medium">(${data.subtitle})</span></h2>
+                    <p class="mt-2 text-slate-600 leading-relaxed">${data.explanation}</p>
+                    ${data.html}
+                </div>
+            `;
+            
+            contentArea.querySelectorAll('li[data-accent-color="true"]').forEach(el => el.classList.add('bg-slate-50', 'p-3', 'rounded-lg', 'border-l-4'));
+            contentArea.querySelectorAll('table td, table th').forEach(el => el.classList.add('p-3'));
+            applyAccentColor(data.accentColor);
+        }
+        
+        function renderQuiz() {
+            const data = contentData.quiz;
+            const isFinished = state.quiz.currentQuestionIndex >= quizData.length;
+            
+            let quizHTML;
+            if (isFinished) {
+                const score = state.quiz.score;
+                const total = quizData.length;
+                const percentage = Math.round((score / total) * 100);
+                let message = "¡Buen trabajo! Sigue practicando para perfeccionar tu dominio.";
+                if (percentage >= 80) message = "🎉 ¡Excelente! Tienes un gran dominio de adjetivos y adverbios.";
+                
+                quizHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-slate-900">${data.title} - Resultados</h2>
+                        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-6">
+                            <p class="text-lg text-slate-600">Tu puntuación final:</p>
+                            <p class="my-4 text-7xl font-extrabold" style="color: ${data.accentColor};">${score}<span class="text-4xl text-slate-400 font-medium">/${total}</span></p>
+                            <div class="w-full bg-slate-200 rounded-full h-4 my-4">
+                                <div class="bg-green-500 h-4 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                            <p class="text-slate-600">${message}</p>
+                            <button id="restart-quiz-btn" class="mt-8 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                                Intentar de nuevo
+                            </button>
+                        </div>
+                    </div>`;
+            } else {
+                const q = quizData[state.quiz.currentQuestionIndex];
+                const progress = ((state.quiz.currentQuestionIndex) / quizData.length) * 100;
+                quizHTML = `
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">${data.title}</h2>
+                    <p class="text-slate-500 mb-6">Pregunta ${state.quiz.currentQuestionIndex + 1} de ${quizData.length}</p>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 mb-6">
+                        <div id="progress-bar" class="h-2.5 rounded-full transition-all duration-300" style="width: ${progress}%; background-color: ${data.accentColor};"></div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <p class="text-xl font-semibold text-slate-800 mb-6">${q.question}</p>
+                        <div id="options-container" class="space-y-3">
+                            ${q.options.map((opt, i) => `
+                                <button class="btn-option w-full text-left p-4 rounded-lg border-2 border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200" data-option-index="${i}">
+                                    <span class="font-semibold text-slate-700">${opt.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="quiz-navigation" class="text-right mt-6">
+                            <button id="next-question-btn" class="bg-indigo-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none">
+                                Siguiente
+                            </button>
+                        </div>
+                    </div>`;
+            }
+            contentArea.innerHTML = `<div class="animate-fade-in">${quizHTML}</div>`;
+            if (!isFinished) {
+                document.getElementById('progress-bar').style.width = `${((state.quiz.currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            }
+            addQuizEventListeners();
+        }
+
+        function handleNavClick(e) {
+            const button = e.target.closest('.btn-nav');
+            if (!button) return;
+            
+            state.currentView = button.dataset.section;
+            if (state.currentView === 'quiz') {
+                state.quiz = { currentQuestionIndex: 0, score: 0, answered: false };
+            }
+
+            renderNav();
+            renderContent();
+            
+            if (window.innerWidth < 1024) { 
+                toggleMobileMenu();
+            }
+        }
+        
+        function toggleMobileMenu() {
+            navMenu.classList.toggle('hidden');
+            menuOpenIcon.classList.toggle('hidden');
+            menuCloseIcon.classList.toggle('hidden');
+        }
+
+        function handleOptionClick(e) {
+            if (state.quiz.answered) return;
+            state.quiz.answered = true;
+
+            const selectedBtn = e.target.closest('.btn-option');
+            if (!selectedBtn) return;
+
+            const q = quizData[state.quiz.currentQuestionIndex];
+            const selectedIndex = parseInt(selectedBtn.dataset.optionIndex);
+
+            const allOptions = document.querySelectorAll('.btn-option');
+            
+            allOptions.forEach((btn, index) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50');
+                if (index === q.correct) {
+                    btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                    btn.innerHTML += `<span class="float-right"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1314 4L19 7" /></svg></span>`;
+                }
+            });
+
+            if (selectedIndex === q.correct) {
+                state.quiz.score++;
+            } else {
+                selectedBtn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                selectedBtn.innerHTML += `<span class="float-right"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6112 12" /></svg></span>`;
+            }
+            
+            const nextBtn = document.getElementById('next-question-btn');
+            nextBtn.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none');
+        }
+
+        function addQuizEventListeners() {
+            const options = document.getElementById('options-container');
+            if(options) options.addEventListener('click', handleOptionClick);
+            
+            const nextBtn = document.getElementById('next-question-btn');
+            if(nextBtn) nextBtn.addEventListener('click', () => {
+                state.quiz.currentQuestionIndex++;
+                state.quiz.answered = false;
+                renderQuiz();
+            });
+
+            const restartBtn = document.getElementById('restart-quiz-btn');
+            if(restartBtn) restartBtn.addEventListener('click', () => {
+                state.quiz = { currentQuestionIndex: 0, score: 0, answered: false };
+                renderQuiz();
+            });
+        }
+        
+        function init() {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.5s ease-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+
+            navMenu.addEventListener('click', handleNavClick);
+            hamburgerBtn.addEventListener('click', toggleMobileMenu);
+
+            renderNav();
+            renderContent();
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

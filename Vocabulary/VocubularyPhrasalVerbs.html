@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Vocabulario: Phrasal Verbs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        @media (min-width: 640px) {
+            .card {
+                padding: 2rem;
+            }
+        }
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .btn-nav {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .btn-nav.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        .btn-option {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .btn-option:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+            transform: translateY(-2px);
+        }
+        .btn-action {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .btn-action:hover {
+            background-color: #4338ca;
+        }
+        .correct-answer {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+            transform: scale(1.02);
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+        .disabled-option {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="w-full max-w-2xl mx-auto">
+        <div class="card">
+            <div class="flex justify-center space-x-2 sm:space-x-4 mb-6 border-b pb-4">
+                <button id="btn-quiz-view" class="btn btn-nav active w-1/2">Quiz</button>
+                <button id="btn-dict-view" class="btn btn-nav w-1/2">Diccionario</button>
+            </div>
+
+            <div id="quiz-view">
+                <div id="mode-selection-view" class="text-center">
+                    <h2 class="text-2xl font-bold mb-6">Elige un modo de juego</h2>
+                    <div class="space-y-4">
+                        <button data-mode="translation" class="btn btn-action w-full text-lg">¿Cuál es la traducción?</button>
+                        <button data-mode="definition" class="btn btn-action w-full text-lg">¿Qué palabra es? (Definición)</button>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="text-center hidden">
+                    <div id="quiz-header" class="mb-4">
+                        <p class="text-sm text-gray-500">Pregunta <span id="question-count">1</span> de <span id="total-questions">50</span></p>
+                        <p class="font-semibold">Puntaje: <span id="score">0</span></p>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-bold mb-6 min-h-[100px] flex items-center justify-center" id="question-word">Cargando...</h2>
+                    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        </div>
+                    <div id="definition-container" class="hidden mt-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg text-left">
+                        </div>
+                    <button id="next-question-btn" class="btn btn-action w-full hidden mt-6">Siguiente</button>
+                </div>
+                 <div id="results-container" class="text-center hidden">
+                    <h2 class="text-3xl font-bold mb-4">¡Quiz Terminado!</h2>
+                    <p class="text-xl mb-6">Tu puntaje final es: <span id="final-score" class="font-bold"></span></p>
+                    <button id="restart-quiz-btn" class="btn btn-action w-full">Jugar de Nuevo</button>
+                    <button id="review-missed-btn" class="btn btn-nav w-full mt-3 hidden">Repasar Palabras Falladas</button>
+                    <button id="change-mode-btn" class="btn btn-nav w-full mt-3">Cambiar de Modo</button>
+                </div>
+            </div>
+
+            <div id="dictionary-view" class="hidden">
+                <h2 class="text-2xl font-bold text-center mb-4">Diccionario</h2>
+                <input type="text" id="search-input" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Buscar en inglés o español...">
+                <div id="dictionary-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+            </div>
+            
+            <div id="review-view" class="hidden">
+                 <h2 class="text-2xl font-bold text-center mb-4">Palabras para Repasar</h2>
+                 <div id="review-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 mb-6"></div>
+                 <button id="start-review-quiz-btn" class="btn btn-action w-full">Iniciar Quiz de Repaso</button>
+                 <button id="back-to-results-btn" class="btn btn-nav w-full mt-3">Volver a Resultados</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- 1. DATOS ---
+    const vocabulary = [
+  {
+    english: "ask someone out",
+    spanish: "invitar a salir a alguien",
+    definition_en: "To invite someone on a date.",
+    definition_es: "Invitar a alguien a una cita.",
+    partOfSpeech: "phrasal verb",
+    example_en: "He finally asked her out to dinner.",
+    example_es: "Finalmente la invitó a salir a cenar."
+  },
+  {
+    english: "bring something up",
+    spanish: "sacar un tema / mencionar",
+    definition_en: "To start talking about a particular subject.",
+    definition_es: "Empezar a hablar de un tema en particular.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Don't bring up politics at the family dinner.",
+    example_es: "No saques el tema de la política en la cena familiar."
+  },
+  {
+    english: "call something off",
+    spanish: "cancelar algo",
+    definition_en: "To cancel an event or agreement.",
+    definition_es: "Cancelar un evento o acuerdo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "They had to call off the meeting due to the storm.",
+    example_es: "Tuvieron que cancelar la reunión debido a la tormenta."
+  },
+  {
+    english: "come across something",
+    spanish: "encontrarse con algo / toparse con",
+    definition_en: "To find something or meet someone by chance.",
+    definition_es: "Encontrar algo o a alguien por casualidad.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I came across an old photo while cleaning my room.",
+    example_es: "Me encontré con una foto antigua mientras limpiaba mi habitación."
+  },
+  {
+    english: "cut back on something",
+    spanish: "reducir el consumo de algo",
+    definition_en: "To consume less of something.",
+    definition_es: "Consumir menos de algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I'm trying to cut back on coffee.",
+    example_es: "Estoy intentando reducir mi consumo de café."
+  },
+  {
+    english: "drop out",
+    spanish: "abandonar (los estudios)",
+    definition_en: "To quit a course, school, or competition.",
+    definition_es: "Dejar un curso, la escuela o una competición.",
+    partOfSpeech: "phrasal verb",
+    example_en: "He dropped out of college after the first semester.",
+    example_es: "Abandonó la universidad después del primer semestre."
+  },
+  {
+    english: "end up",
+    spanish: "terminar / acabar",
+    definition_en: "To eventually reach or do something.",
+    definition_es: "Finalmente llegar a un estado, lugar o hacer algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "We ended up watching a movie instead of going out.",
+    example_es: "Terminamos viendo una película en lugar de salir."
+  },
+  {
+    english: "figure something out",
+    spanish: "resolver / entender algo",
+    definition_en: "To understand or solve something.",
+    definition_es: "Comprender o resolver algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I need to figure out how to use this new software.",
+    example_es: "Necesito entender cómo usar este nuevo software."
+  },
+  {
+    english: "find out",
+    spanish: "enterarse / descubrir",
+    definition_en: "To discover a piece of information.",
+    definition_es: "Descubrir una información.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I just found out that my cousin is getting married.",
+    example_es: "Acabo de enterarme de que mi primo se va a casar."
+  },
+  {
+    english: "get along with someone",
+    spanish: "llevarse bien con alguien",
+    definition_en: "To have a friendly relationship with someone.",
+    definition_es: "Tener una relación amistosa con alguien.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I get along well with my new colleagues.",
+    example_es: "Me llevo bien con mis nuevos colegas."
+  },
+  {
+    english: "get over something",
+    spanish: "superar algo",
+    definition_en: "To recover from an illness or a bad experience.",
+    definition_es: "Recuperarse de una enfermedad o una mala experiencia.",
+    partOfSpeech: "phrasal verb",
+    example_en: "It took him a long time to get over the breakup.",
+    example_es: "Le llevó mucho tiempo superar la ruptura."
+  },
+  {
+    english: "give something up",
+    spanish: "rendirse / dejar un hábito",
+    definition_en: "To quit a habit or stop trying to do something.",
+    definition_es: "Dejar un hábito o dejar de intentar hacer algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I decided to give up smoking last year.",
+    example_es: "Decidí dejar de fumar el año pasado."
+  },
+  {
+    english: "go ahead",
+    spanish: "adelante / proceder",
+    definition_en: "To proceed or start to do something.",
+    definition_es: "Proceder o empezar a hacer algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Please, go ahead and start the presentation.",
+    example_es: "Por favor, adelante, empieza la presentación."
+  },
+  {
+    english: "grow up",
+    spanish: "crecer / madurar",
+    definition_en: "To develop from a child into an adult.",
+    definition_es: "Desarrollarse de niño a adulto.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I grew up in a small town.",
+    example_es: "Crecí en un pueblo pequeño."
+  },
+  {
+    english: "hang out",
+    spanish: "pasar el rato",
+    definition_en: "To spend time relaxing or socializing informally.",
+    definition_es: "Pasar tiempo relajándose o socializando de manera informal.",
+    partOfSpeech: "phrasal verb",
+    example_en: "We should hang out this weekend.",
+    example_es: "Deberíamos pasar el rato este fin de semana."
+  },
+  {
+    english: "hold on",
+    spanish: "esperar",
+    definition_en: "To wait for a short time.",
+    definition_es: "Esperar por un corto período de tiempo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Hold on a minute, I'll be right back.",
+    example_es: "Espera un minuto, ahora mismo vuelvo."
+  },
+  {
+    english: "keep on doing something",
+    spanish: "seguir haciendo algo",
+    definition_en: "To continue doing something without stopping.",
+    definition_es: "Continuar haciendo algo sin parar.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Just keep on trying and you will succeed.",
+    example_es: "Solo sigue intentándolo y tendrás éxito."
+  },
+  {
+    english: "look after someone/something",
+    spanish: "cuidar de alguien/algo",
+    definition_en: "To take care of someone or something.",
+    definition_es: "Hacerse cargo de alguien o algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Can you look after my dog while I'm on vacation?",
+    example_es: "¿Puedes cuidar de mi perro mientras estoy de vacaciones?"
+  },
+  {
+    english: "look for someone/something",
+    spanish: "buscar a alguien/algo",
+    definition_en: "To try to find someone or something.",
+    definition_es: "Intentar encontrar a alguien o algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I'm looking for my keys; have you seen them?",
+    example_es: "Estoy buscando mis llaves, ¿las has visto?"
+  },
+  {
+    english: "look forward to something",
+    spanish: "esperar con ilusión algo",
+    definition_en: "To feel pleased and excited about something that is going to happen.",
+    definition_es: "Sentirse complacido y emocionado por algo que va a suceder.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I'm looking forward to my birthday.",
+    example_es: "Espero con ilusión mi cumpleaños."
+  },
+  {
+    english: "look something up",
+    spanish: "buscar información",
+    definition_en: "To search for information in a book, computer, etc.",
+    definition_es: "Buscar información en un libro, ordenador, etc.",
+    partOfSpeech: "phrasal verb",
+    example_en: "If you don't know the word, look it up in the dictionary.",
+    example_es: "Si no conoces la palabra, búscala en el diccionario."
+  },
+  {
+    english: "make something up",
+    spanish: "inventar algo",
+    definition_en: "To invent a story, excuse, or plan.",
+    definition_es: "Inventar una historia, excusa o plan.",
+    partOfSpeech: "phrasal verb",
+    example_en: "He made up a crazy story about being abducted by aliens.",
+    example_es: "Se inventó una historia loca sobre ser abducido por extraterrestres."
+  },
+  {
+    english: "pass out",
+    spanish: "desmayarse",
+    definition_en: "To become unconscious; to faint.",
+    definition_es: "Perder el conocimiento; desmayarse.",
+    partOfSpeech: "phrasal verb",
+    example_en: "It was so hot that he passed out.",
+    example_es: "Hacía tanto calor que se desmayó."
+  },
+  {
+    english: "put something off",
+    spanish: "posponer algo",
+    definition_en: "To delay doing something until a later time.",
+    definition_es: "Retrasar hacer algo hasta un momento posterior.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Don't put off your homework until the last minute.",
+    example_es: "No pospongas tus deberes hasta el último minuto."
+  },
+  {
+    english: "put up with someone/something",
+    spanish: "aguantar / soportar",
+    definition_en: "To tolerate someone or something that is annoying.",
+    definition_es: "Tolerar a alguien o algo que es molesto.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I don't know how she puts up with his constant complaining.",
+    example_es: "No sé cómo soporta sus quejas constantes."
+  },
+  {
+    english: "run into someone",
+    spanish: "encontrarse con alguien por casualidad",
+    definition_en: "To meet someone you know when you are not expecting to.",
+    definition_es: "Encontrarte con alguien que conoces cuando no lo esperas.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I ran into my old teacher at the supermarket.",
+    example_es: "Me encontré con mi antiguo profesor en el supermercado."
+  },
+  {
+    english: "run out of something",
+    spanish: "quedarse sin algo",
+    definition_en: "To have no more of something left.",
+    definition_es: "No tener más de algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "We've run out of milk; I need to go to the store.",
+    example_es: "Nos hemos quedado sin leche; tengo que ir a la tienda."
+  },
+  {
+    english: "set something up",
+    spanish: "organizar / montar algo",
+    definition_en: "To arrange or organize something.",
+    definition_es: "Arreglar u organizar algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Let's set up a meeting for next week.",
+    example_es: "Organicemos una reunión para la próxima semana."
+  },
+  {
+    english: "show up",
+    spanish: "aparecer / presentarse",
+    definition_en: "To arrive somewhere, especially when you are expected.",
+    definition_es: "Llegar a algún lugar, especialmente cuando te esperan.",
+    partOfSpeech: "phrasal verb",
+    example_en: "He didn't show up for the interview.",
+    example_es: "No se presentó a la entrevista."
+  },
+  {
+    english: "take off",
+    spanish: "despegar (avión) / quitarse (ropa)",
+    definition_en: "To leave the ground and begin to fly; to remove clothing.",
+    definition_es: "Dejar el suelo y empezar a volar; quitarse la ropa.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The plane will take off in ten minutes. Please take off your shoes.",
+    example_es: "El avión despegará en diez minutos. Por favor, quítate los zapatos."
+  },
+  {
+    english: "throw something away",
+    spanish: "tirar algo a la basura",
+    definition_en: "To get rid of something you no longer want.",
+    definition_es: "Deshacerse de algo que ya no quieres.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Don't throw away that old chair; we can repair it.",
+    example_es: "No tires esa silla vieja; podemos repararla."
+  },
+  {
+    english: "turn something down",
+    spanish: "rechazar / bajar el volumen",
+    definition_en: "To refuse an offer; to reduce the volume or level of something.",
+    definition_es: "Rechazar una oferta; reducir el volumen o nivel de algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "She turned down the job offer. Can you turn the music down?",
+    example_es: "Ella rechazó la oferta de trabajo. ¿Puedes bajar la música?"
+  },
+  {
+    english: "turn something on/off",
+    spanish: "encender / apagar algo",
+    definition_en: "To start or stop the flow of electricity, gas, water, etc.",
+    definition_es: "Iniciar o detener el flujo de electricidad, gas, agua, etc.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Please turn on the lights. Don't forget to turn off the TV.",
+    example_es: "Por favor, enciende las luces. No olvides apagar la televisión."
+  },
+  {
+    english: "wake up",
+    spanish: "despertarse",
+    definition_en: "To stop sleeping.",
+    definition_es: "Dejar de dormir.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I usually wake up at 7 AM.",
+    example_es: "Normalmente me despierto a las 7 de la mañana."
+  },
+  {
+    english: "work out",
+    spanish: "hacer ejercicio / funcionar",
+    definition_en: "To exercise; to be successful or end in a particular way.",
+    definition_es: "Hacer ejercicio; tener éxito o terminar de una manera particular.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I work out at the gym three times a week. I hope everything works out for you.",
+    example_es: "Hago ejercicio en el gimnasio tres veces por semana. Espero que todo te salga bien."
+  },
+  {
+    english: "break down",
+    spanish: "averiarse / derrumbarse",
+    definition_en: "To stop working (machine); to become very upset.",
+    definition_es: "Dejar de funcionar (una máquina); ponerse muy alterado.",
+    partOfSpeech: "phrasal verb",
+    example_en: "My car broke down on the highway. She broke down in tears.",
+    example_es: "Mi coche se averió en la autopista. Ella se derrumbó en lágrimas."
+  },
+  {
+    english: "check in",
+    spanish: "registrarse",
+    definition_en: "To arrive and register at a hotel or airport.",
+    definition_es: "Llegar y registrarse en un hotel o aeropuerto.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You need to check in at least two hours before your flight.",
+    example_es: "Necesitas registrarte al menos dos horas antes de tu vuelo."
+  },
+  {
+    english: "check out",
+    spanish: "pagar y marcharse / echar un vistazo",
+    definition_en: "To leave a hotel after paying; to look at or examine someone or something.",
+    definition_es: "Dejar un hotel después de pagar; mirar o examinar a alguien o algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "We have to check out of the hotel by noon. Check out that cool car!",
+    example_es: "Tenemos que dejar el hotel antes del mediodía. ¡Echa un vistazo a ese coche genial!"
+  },
+  {
+    english: "come back",
+    spanish: "regresar",
+    definition_en: "To return to a place.",
+    definition_es: "Volver a un lugar.",
+    partOfSpeech: "phrasal verb",
+    example_en: "What time did you come back last night?",
+    example_es: "¿A qué hora regresaste anoche?"
+  },
+  {
+    english: "come up with something",
+    spanish: "proponer / ocurrírsele algo",
+    definition_en: "To suggest or think of an idea or plan.",
+    definition_es: "Sugerir o pensar en una idea o plan.",
+    partOfSpeech: "phrasal verb",
+    example_en: "She came up with a great idea for the new project.",
+    example_es: "Se le ocurrió una gran idea para el nuevo proyecto."
+  },
+  {
+    english: "dress up",
+    spanish: "vestirse elegante",
+    definition_en: "To wear nice clothing.",
+    definition_es: "Llevar ropa elegante.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You don't need to dress up for the party; it's very casual.",
+    example_es: "No necesitas vestirte elegante para la fiesta; es muy informal."
+  },
+  {
+    english: "eat out",
+    spanish: "comer fuera",
+    definition_en: "To eat at a restaurant.",
+    definition_es: "Comer en un restaurante.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Let's eat out tonight; I don't feel like cooking.",
+    example_es: "Comamos fuera esta noche; no tengo ganas de cocinar."
+  },
+  {
+    english: "fall apart",
+    spanish: "desmoronarse",
+    definition_en: "To break into pieces; to have a lot of emotional problems.",
+    definition_es: "Romperse en pedazos; tener muchos problemas emocionales.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The old book is falling apart. He started to fall apart after losing his job.",
+    example_es: "El libro viejo se está desmoronando. Empezó a desmoronarse después de perder su trabajo."
+  },
+  {
+    english: "get away",
+    spanish: "escapar",
+    definition_en: "To go on vacation or escape from a place or situation.",
+    definition_es: "Irse de vacaciones o escapar de un lugar o situación.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I need to get away for a few days.",
+    example_es: "Necesito escapar por unos días."
+  },
+  {
+    english: "get back to someone",
+    spanish: "volver a contactar a alguien",
+    definition_en: "To respond to someone's communication later.",
+    definition_es: "Responder a la comunicación de alguien más tarde.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I'll check the information and get back to you tomorrow.",
+    example_es: "Verificaré la información y te contactaré mañana."
+  },
+  {
+    english: "get together",
+    spanish: "juntarse / reunirse",
+    definition_en: "To meet in order to do something or spend time together.",
+    definition_es: "Reunirse para hacer algo o pasar tiempo juntos.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Let's get together for coffee next week.",
+    example_es: "Juntémonos para tomar un café la próxima semana."
+  },
+  {
+    english: "give in",
+    spanish: "ceder / rendirse",
+    definition_en: "To finally agree to what someone wants, after refusing for a period of time.",
+    definition_es: "Finalmente acceder a lo que alguien quiere, después de negarse por un tiempo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The government will not give in to the protesters' demands.",
+    example_es: "El gobierno no cederá a las demandas de los manifestantes."
+  },
+  {
+    english: "go on",
+    spanish: "continuar / suceder",
+    definition_en: "To continue; to happen.",
+    definition_es: "Continuar; suceder.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Please go on with your story. What's going on here?",
+    example_es: "Por favor, continúa con tu historia. ¿Qué está pasando aquí?"
+  },
+  {
+    english: "hand something in",
+    spanish: "entregar algo",
+    definition_en: "To give something to a person in authority.",
+    definition_es: "Dar algo a una persona con autoridad.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You must hand in your assignments by Friday.",
+    example_es: "Debes entregar tus trabajos antes del viernes."
+  },
+  {
+    english: "let someone down",
+    spanish: "decepcionar a alguien",
+    definition_en: "To disappoint someone.",
+    definition_es: "Decepcionar a alguien.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I feel like I let my parents down.",
+    example_es: "Siento que he decepcionado a mis padres."
+  },
+  {
+    english: "log in / log on",
+    spanish: "iniciar sesión",
+    definition_en: "To connect to a computer system.",
+    definition_es: "Conectarse a un sistema informático.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You need a password to log in.",
+    example_es: "Necesitas una contraseña para iniciar sesión."
+  },
+  {
+    english: "log out / log off",
+    spanish: "cerrar sesión",
+    definition_en: "To disconnect from a computer system.",
+    definition_es: "Desconectarse de un sistema informático.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Always log out when you finish using the computer.",
+    example_es: "Siempre cierra sesión cuando termines de usar el ordenador."
+  },
+  {
+    english: "mess up",
+    spanish: "meter la pata / estropear",
+    definition_en: "To make a mistake or do something badly.",
+    definition_es: "Cometer un error o hacer algo mal.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I really messed up the exam.",
+    example_es: "Realmente metí la pata en el examen."
+  },
+  {
+    english: "pick something up",
+    spanish: "recoger algo / aprender algo",
+    definition_en: "To lift something from a surface; to learn a new skill easily.",
+    definition_es: "Levantar algo de una superficie; aprender una nueva habilidad fácilmente.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Can you pick up that book for me? I picked up some Spanish while living in Madrid.",
+    example_es: "¿Puedes recogerme ese libro? Aprendí algo de español mientras vivía en Madrid."
+  },
+  {
+    english: "point something out",
+    spanish: "señalar / indicar algo",
+    definition_en: "To draw attention to something or someone.",
+    definition_es: "Llamar la atención sobre algo o alguien.",
+    partOfSpeech: "phrasal verb",
+    example_en: "He pointed out the best restaurants on the map.",
+    example_es: "Señaló los mejores restaurantes en el mapa."
+  },
+  {
+    english: "put something away",
+    spanish: "guardar algo en su sitio",
+    definition_en: "To put something in the place where it is usually kept.",
+    definition_es: "Poner algo en el lugar donde normalmente se guarda.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Please put your clothes away.",
+    example_es: "Por favor, guarda tu ropa."
+  },
+  {
+    english: "settle down",
+    spanish: "sentar la cabeza / calmarse",
+    definition_en: "To adopt a more stable lifestyle; to become calm.",
+    definition_es: "Adoptar un estilo de vida más estable; calmarse.",
+    partOfSpeech: "phrasal verb",
+    example_en: "After years of traveling, he decided to settle down. Settle down, kids!",
+    example_es: "Después de años viajando, decidió sentar la cabeza. ¡Cálmense, niños!"
+  },
+  {
+    english: "sleep over",
+    spanish: "pasar la noche en casa de alguien",
+    definition_en: "To sleep in someone else's home for a night.",
+    definition_es: "Dormir en casa de otra persona por una noche.",
+    partOfSpeech: "phrasal verb",
+    example_en: "My daughter is sleeping over at her friend's house tonight.",
+    example_es: "Mi hija va a pasar la noche en casa de su amiga esta noche."
+  },
+  {
+    english: "stick to something",
+    spanish: "ceñirse a algo / no desviarse",
+    definition_en: "To continue doing or using something and not change it.",
+    definition_es: "Continuar haciendo o usando algo y no cambiarlo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You should stick to the original plan.",
+    example_es: "Deberías ceñirte al plan original."
+  },
+  {
+    english: "take after someone",
+    spanish: "parecerse a alguien",
+    definition_en: "To resemble an older member of your family.",
+    definition_es: "Parecerse a un miembro mayor de tu familia.",
+    partOfSpeech: "phrasal verb",
+    example_en: "He takes after his father.",
+    example_es: "Se parece a su padre."
+  },
+  {
+    english: "take up something",
+    spanish: "empezar un hobby",
+    definition_en: "To start a new hobby or activity.",
+    definition_es: "Empezar un nuevo hobby o actividad.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I've decided to take up painting.",
+    example_es: "He decidido empezar a pintar."
+  },
+  {
+    english: "think something over",
+    spanish: "reflexionar sobre algo",
+    definition_en: "To consider something carefully before making a decision.",
+    definition_es: "Considerar algo cuidadosamente antes de tomar una decisión.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I need some time to think it over.",
+    example_es: "Necesito algo de tiempo para reflexionarlo."
+  },
+  {
+    english: "try something on",
+    spanish: "probarse ropa",
+    definition_en: "To put on an item of clothing to see if it fits or suits you.",
+    definition_es: "Ponerse una prenda de vestir para ver si te queda bien o te favorece.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Can I try this jacket on?",
+    example_es: "¿Puedo probarme esta chaqueta?"
+  },
+  {
+    english: "use something up",
+    spanish: "gastar / consumir por completo",
+    definition_en: "To use all of something so that nothing is left.",
+    definition_es: "Usar todo de algo de modo que no quede nada.",
+    partOfSpeech: "phrasal verb",
+    example_en: "We used up all the shampoo.",
+    example_es: "Gastamos todo el champú."
+  },
+  {
+    english: "watch out",
+    spanish: "tener cuidado",
+    definition_en: "To be careful.",
+    definition_es: "Ser cuidadoso.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Watch out! There's a car coming.",
+    example_es: "¡Ten cuidado! Viene un coche."
+  },
+  {
+    english: "blow up",
+    spanish: "explotar",
+    definition_en: "To explode; to get very angry.",
+    definition_es: "Explotar; enfadarse mucho.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The bomb blew up. He blew up at me for being late.",
+    example_es: "La bomba explotó. Se enfadó mucho conmigo por llegar tarde."
+  },
+  {
+    english: "bring someone down",
+    spanish: "deprimir a alguien",
+    definition_en: "To make someone feel unhappy.",
+    definition_es: "Hacer que alguien se sienta infeliz.",
+    partOfSpeech: "phrasal verb",
+    example_en: "This sad music is bringing me down.",
+    example_es: "Esta música triste me está deprimiendo."
+  },
+  {
+    english: "catch up",
+    spanish: "ponerse al día",
+    definition_en: "To reach the same point/level as someone else; to update each other on life events.",
+    definition_es: "Alcanzar el mismo punto/nivel que otra persona; actualizarse mutuamente sobre eventos de la vida.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Let's meet for coffee and catch up.",
+    example_es: "Quedemos para tomar un café y ponernos al día."
+  },
+  {
+    english: "cheer up",
+    spanish: "animarse",
+    definition_en: "To become happier.",
+    definition_es: "Volverse más feliz.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Cheer up! Things will get better.",
+    example_es: "¡Anímate! Las cosas mejorarán."
+  },
+  {
+    english: "count on someone",
+    spanish: "contar con alguien",
+    definition_en: "To rely on or trust someone.",
+    definition_es: "Confiar en alguien.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You can always count on me for help.",
+    example_es: "Siempre puedes contar conmigo para lo que necesites."
+  },
+  {
+    english: "deal with something",
+    spanish: "lidiar con algo",
+    definition_en: "To handle a problem or situation.",
+    definition_es: "Manejar un problema o situación.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I have to deal with a lot of paperwork in my job.",
+    example_es: "Tengo que lidiar con mucho papeleo en mi trabajo."
+  },
+  {
+    english: "drop someone off",
+    spanish: "dejar a alguien en un lugar",
+    definition_en: "To take someone to a particular place, usually by car, and leave them there.",
+    definition_es: "Llevar a alguien a un lugar en particular, generalmente en coche, y dejarlo allí.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Can you drop me off at the station?",
+    example_es: "¿Me puedes dejar en la estación?"
+  },
+  {
+    english: "get on (a bus, train, plane)",
+    spanish: "subirse a (un autobús, tren, avión)",
+    definition_en: "To board a form of public transport.",
+    definition_es: "Subir a un medio de transporte público.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Hurry up and get on the bus!",
+    example_es: "¡Date prisa y súbete al autobús!"
+  },
+  {
+    english: "get off (a bus, train, plane)",
+    spanish: "bajarse de (un autobús, tren, avión)",
+    definition_en: "To leave a form of public transport.",
+    definition_es: "Bajar de un medio de transporte público.",
+    partOfSpeech: "phrasal verb",
+    example_en: "We need to get off at the next stop.",
+    example_es: "Tenemos que bajarnos en la siguiente parada."
+  },
+  {
+    english: "give away",
+    spanish: "regalar / delatar",
+    definition_en: "To give something for free; to reveal a secret.",
+    definition_es: "Dar algo gratis; revelar un secreto.",
+    partOfSpeech: "phrasal verb",
+    example_en: "They are giving away free samples. His expression gave him away.",
+    example_es: "Están regalando muestras gratis. Su expresión lo delató."
+  },
+  {
+    english: "go over something",
+    spanish: "repasar algo",
+    definition_en: "To review or examine something.",
+    definition_es: "Revisar o examinar algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Let's go over the plan one more time.",
+    example_es: "Repasemos el plan una vez más."
+  },
+  {
+    english: "grow apart",
+    spanish: "distanciarse",
+    definition_en: "To stop having a close relationship with someone over time.",
+    definition_es: "Dejar de tener una relación cercana con alguien con el tiempo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "They were best friends in school, but they grew apart.",
+    example_es: "Eran mejores amigos en la escuela, pero se distanciaron."
+  },
+  {
+    english: "hang up",
+    spanish: "colgar el teléfono",
+    definition_en: "To end a phone call.",
+    definition_es: "Terminar una llamada telefónica.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Don't hang up on me!",
+    example_es: "¡No me cuelgues!"
+  },
+  {
+    english: "hold back",
+    spanish: "contenerse",
+    definition_en: "To stop yourself from doing or saying something.",
+    definition_es: "Impedirse a uno mismo hacer o decir algo.",
+    partOfSpeech: "phrasal verb",
+    example_en: "She held back her tears.",
+    example_es: "Contuvo sus lágrimas."
+  },
+  {
+    english: "let someone in",
+    spanish: "dejar entrar a alguien",
+    definition_en: "To allow someone to enter a place.",
+    definition_es: "Permitir que alguien entre a un lugar.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Could you open the door and let me in?",
+    example_es: "¿Podrías abrir la puerta y dejarme entrar?"
+  },
+  {
+    english: "look down on someone",
+    spanish: "menospreciar a alguien",
+    definition_en: "To think that you are better or more important than someone else.",
+    definition_es: "Pensar que eres mejor o más importante que otra persona.",
+    partOfSpeech: "phrasal verb",
+    example_en: "She looks down on people who are not as rich as her.",
+    example_es: "Ella menosprecia a la gente que no es tan rica como ella."
+  },
+  {
+    english: "make fun of someone",
+    spanish: "burlarse de alguien",
+    definition_en: "To laugh at someone or make jokes about them in an unkind way.",
+    definition_es: "Reírse de alguien o hacer bromas sobre ellos de una manera poco amable.",
+    partOfSpeech: "phrasal verb",
+    example_en: "It's not nice to make fun of others.",
+    example_es: "No está bien burlarse de los demás."
+  },
+  {
+    english: "mix something up",
+    spanish: "confundir algo",
+    definition_en: "To confuse two or more things.",
+    definition_es: "Confundir dos o más cosas.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I always mix up their names.",
+    example_es: "Siempre confundo sus nombres."
+  },
+  {
+    english: "pass away",
+    spanish: "fallecer",
+    definition_en: "A polite way to say 'to die'.",
+    definition_es: "Una forma educada de decir 'morir'.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Her grandfather passed away last year.",
+    example_es: "Su abuelo falleció el año pasado."
+  },
+  {
+    english: "pull over",
+    spanish: "hacerse a un lado (con un vehículo)",
+    definition_en: "To stop a vehicle by the side of the road.",
+    definition_es: "Detener un vehículo a un lado de la carretera.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The police officer told me to pull over.",
+    example_es: "El oficial de policía me dijo que me hiciera a un lado."
+  },
+  {
+    english: "put out (a fire)",
+    spanish: "apagar un fuego",
+    definition_en: "To extinguish a fire.",
+    definition_es: "Extinguir un fuego.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The firefighters managed to put out the fire.",
+    example_es: "Los bomberos lograron apagar el fuego."
+  },
+  {
+    english: "rip someone off",
+    spanish: "estafar a alguien",
+    definition_en: "To cheat someone, especially by charging too much money.",
+    definition_es: "Engañar a alguien, especialmente cobrándole demasiado dinero.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The mechanic ripped me off; he charged me $500 for a simple repair.",
+    example_es: "El mecánico me estafó; me cobró 500 dólares por una reparación sencilla."
+  },
+  {
+    english: "rule something out",
+    spanish: "descartar algo",
+    definition_en: "To decide that something is not possible or suitable.",
+    definition_es: "Decidir que algo no es posible o adecuado.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The police have ruled out suicide.",
+    example_es: "La policía ha descartado el suicidio."
+  },
+  {
+    english: "slow down",
+    spanish: "reducir la velocidad",
+    definition_en: "To reduce speed.",
+    definition_es: "Reducir la velocidad.",
+    partOfSpeech: "phrasal verb",
+    example_en: "You need to slow down; you're driving too fast.",
+    example_es: "Necesitas reducir la velocidad; estás conduciendo demasiado rápido."
+  },
+  {
+    english: "stand for something",
+    spanish: "representar / significar algo",
+    definition_en: "To represent a particular idea or principle.",
+    definition_es: "Representar una idea o principio en particular.",
+    partOfSpeech: "phrasal verb",
+    example_en: "The letters 'USA' stand for the United States of America.",
+    example_es: "Las letras 'USA' significan Estados Unidos de América."
+  },
+  {
+    english: "take something back",
+    spanish: "devolver algo / retirar lo dicho",
+    definition_en: "To return something to a store; to admit that something you said was wrong.",
+    definition_es: "Devolver algo a una tienda; admitir que algo que dijiste estaba mal.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I need to take this shirt back, it's too small. I take back what I said about you.",
+    example_es: "Necesito devolver esta camisa, es demasiado pequeña. Retiro lo que dije sobre ti."
+  },
+  {
+    english: "tell someone off",
+    spanish: "regañar a alguien",
+    definition_en: "To speak angrily to someone because they did something wrong.",
+    definition_es: "Hablarle enfadado a alguien porque hizo algo mal.",
+    partOfSpeech: "phrasal verb",
+    example_en: "My boss told me off for being late again.",
+    example_es: "Mi jefe me regañó por llegar tarde de nuevo."
+  },
+  {
+    english: "warm up",
+    spanish: "calentar",
+    definition_en: "To prepare for physical exercise by doing gentle exercises.",
+    definition_es: "Prepararse para el ejercicio físico haciendo ejercicios suaves.",
+    partOfSpeech: "phrasal verb",
+    example_en: "It's important to warm up before you start running.",
+    example_es: "Es importante calentar antes de empezar a correr."
+  },
+  {
+    english: "pay someone back",
+    spanish: "devolver dinero a alguien",
+    definition_en: "To return money that you borrowed.",
+    definition_es: "Devolver dinero que pediste prestado.",
+    partOfSpeech: "phrasal verb",
+    example_en: "I'll pay you back as soon as I get my salary.",
+    example_es: "Te devolveré el dinero tan pronto como reciba mi sueldo."
+  },
+  {
+    english: "fill something out",
+    spanish: "rellenar un formulario",
+    definition_en: "To complete a form with information.",
+    definition_es: "Completar un formulario con información.",
+    partOfSpeech: "phrasal verb",
+    example_en: "Please fill out this application form.",
+    example_es: "Por favor, rellene este formulario de solicitud."
+  }
+];
+
+    // --- 2. ESTADO DE LA APLICACIÓN ---
+    let state = {
+        currentView: 'quiz',
+        quiz: {
+            questions: [],
+            missedWords: [],
+            currentQuestionIndex: 0,
+            score: 0,
+            answered: false,
+            mode: null,
+        },
+    };
+
+    const QUIZ_LENGTH = 50;
+    const NUM_OPTIONS = 4;
+
+    // --- 3. SELECTORES DEL DOM ---
+    const elements = {
+        btnQuizView: document.getElementById('btn-quiz-view'),
+        btnDictView: document.getElementById('btn-dict-view'),
+        quizView: document.getElementById('quiz-view'),
+        dictionaryView: document.getElementById('dictionary-view'),
+        reviewView: document.getElementById('review-view'),
+        modeSelectionView: document.getElementById('mode-selection-view'),
+        quizContainer: document.getElementById('quiz-container'),
+        resultsContainer: document.getElementById('results-container'),
+        questionCount: document.getElementById('question-count'),
+        totalQuestions: document.getElementById('total-questions'),
+        score: document.getElementById('score'),
+        questionWord: document.getElementById('question-word'),
+        optionsContainer: document.getElementById('options-container'),
+        definitionContainer: document.getElementById('definition-container'),
+        nextQuestionBtn: document.getElementById('next-question-btn'),
+        finalScore: document.getElementById('final-score'),
+        restartQuizBtn: document.getElementById('restart-quiz-btn'),
+        reviewMissedBtn: document.getElementById('review-missed-btn'),
+        changeModeBtn: document.getElementById('change-mode-btn'),
+        searchInput: document.getElementById('search-input'),
+        dictionaryList: document.getElementById('dictionary-list'),
+        reviewList: document.getElementById('review-list'),
+        startReviewQuizBtn: document.getElementById('start-review-quiz-btn'),
+        backToResultsBtn: document.getElementById('back-to-results-btn'),
+    };
+
+    // --- 4. FUNCIONES ---
+
+    const switchView = (view) => {
+        state.currentView = view;
+        elements.quizView.style.display = 'none';
+        elements.dictionaryView.style.display = 'none';
+        elements.reviewView.style.display = 'none';
+        elements.btnQuizView.classList.remove('active');
+        elements.btnDictView.classList.remove('active');
+
+        if (view === 'quiz') {
+            elements.quizView.style.display = 'block';
+            elements.btnQuizView.classList.add('active');
+            if (!state.quiz.mode) {
+                showModeSelection();
+            }
+        } else if (view === 'dictionary') {
+            elements.dictionaryView.style.display = 'block';
+            elements.btnDictView.classList.add('active');
+            renderDictionary();
+        } else if (view === 'review') {
+            elements.reviewView.style.display = 'block';
+            renderReviewList();
+        }
+    };
+    
+    const showModeSelection = () => {
+        elements.modeSelectionView.style.display = 'block';
+        elements.quizContainer.style.display = 'none';
+        elements.resultsContainer.style.display = 'none';
+    };
+
+    const renderDictionary = (filter = '') => {
+        const lowerCaseFilter = filter.toLowerCase();
+        const filteredVocab = vocabulary
+            .filter(item => 
+                item.english.toLowerCase().includes(lowerCaseFilter) ||
+                item.spanish.toLowerCase().includes(lowerCaseFilter)
+            )
+            .sort((a, b) => a.english.localeCompare(b.english));
+
+        if (filteredVocab.length === 0) {
+            elements.dictionaryList.innerHTML = `<p class="text-center text-gray-500">No se encontraron resultados.</p>`;
+            return;
+        }
+
+        elements.dictionaryList.innerHTML = filteredVocab.map(item => `
+            <div class="p-3 bg-gray-50 rounded-lg border">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-start">
+                    <div>
+                        <div class="flex items-center gap-x-3 mb-1">
+                            <p class="font-bold text-lg text-indigo-700">${item.english}</p>
+                            <span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">${item.partOfSpeech}</span>
+                        </div>
+                        <p class="font-semibold text-lg text-gray-800">${item.spanish}</p>
+                    </div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600 space-y-1">
+                   <p><strong class="font-medium text-gray-900">EN:</strong> ${item.definition_en}</p>
+                   <p><strong class="font-medium text-gray-900">ES:</strong> ${item.definition_es}</p>
+                </div>
+                ${item.example_en ? `
+                <div class="mt-2 pt-2 border-t border-gray-200">
+                    <p class="text-sm text-gray-500 italic">"${item.example_en}"</p>
+                </div>
+                ` : ''}
+            </div>
+        `).join('');
+    };
+
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    const startQuiz = (isReviewMode = false, mode) => {
+        state.quiz.mode = mode || state.quiz.mode;
+        
+        let sourceVocab;
+
+        if (isReviewMode && state.quiz.missedWords.length > 0) {
+            sourceVocab = [...state.quiz.missedWords];
+            state.quiz.missedWords = [];
+        } else {
+            sourceVocab = vocabulary;
+            state.quiz.missedWords = [];
+        }
+
+        const shuffledVocab = shuffleArray([...sourceVocab]);
+        const quizSize = isReviewMode ? sourceVocab.length : Math.min(QUIZ_LENGTH, vocabulary.length);
+        
+        state.quiz.questions = shuffledVocab.slice(0, quizSize);
+        state.quiz.currentQuestionIndex = 0;
+        state.quiz.score = 0;
+        state.quiz.answered = false;
+
+        elements.modeSelectionView.style.display = 'none';
+        elements.quizContainer.style.display = 'block';
+        elements.resultsContainer.style.display = 'none';
+        elements.totalQuestions.textContent = state.quiz.questions.length;
+
+        renderQuestion();
+    };
+    
+    const getWrongOptions = (correctItem) => {
+        const wrongOptions = [];
+        const vocabCopy = [...vocabulary];
+        let field = state.quiz.mode === 'translation' ? (correctItem.hasOwnProperty('spanish') ? 'spanish' : 'english') : 'english';
+        let correctValue = correctItem[field];
+
+        while (wrongOptions.length < NUM_OPTIONS - 1 && vocabCopy.length > 1) {
+            const randomIndex = Math.floor(Math.random() * vocabCopy.length);
+            const randomItem = vocabCopy[randomIndex];
+            
+            if (randomItem[field] !== correctValue && !wrongOptions.includes(randomItem[field])) {
+                wrongOptions.push(randomItem[field]);
+            }
+            vocabCopy.splice(randomIndex, 1);
+        }
+        return wrongOptions;
+    };
+
+    const renderQuestion = () => {
+        state.quiz.answered = false;
+        elements.nextQuestionBtn.classList.add('hidden');
+        elements.definitionContainer.classList.add('hidden');
+        elements.score.textContent = state.quiz.score;
+        elements.questionCount.textContent = state.quiz.currentQuestionIndex + 1;
+
+        const question = state.quiz.questions[state.quiz.currentQuestionIndex];
+        let questionText, correctAnswer, options;
+
+        if (state.quiz.mode === 'definition') {
+            questionText = question.definition_en;
+            correctAnswer = question.english;
+            const wrongAnswers = getWrongOptions(question);
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        } else {
+            const isEnglishQuestion = Math.random() < 0.5;
+            questionText = isEnglishQuestion ? question.english : question.spanish;
+            correctAnswer = isEnglishQuestion ? question.spanish : question.english;
+            const wrongAnswers = getWrongOptions({ [isEnglishQuestion ? 'spanish' : 'english']: correctAnswer });
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        }
+
+        elements.questionWord.textContent = questionText;
+        elements.optionsContainer.innerHTML = options.map(option => `
+            <button class="btn btn-option" data-answer="${option === correctAnswer}">${option}</button>
+        `).join('');
+
+        document.querySelectorAll('.btn-option').forEach(button => {
+            button.addEventListener('click', handleAnswer);
+        });
+    };
+
+    const handleAnswer = (e) => {
+        if (state.quiz.answered) return;
+        state.quiz.answered = true;
+
+        const selectedButton = e.target;
+        const isCorrect = selectedButton.dataset.answer === 'true';
+        const question = state.quiz.questions[state.quiz.currentQuestionIndex];
+
+        if (isCorrect) {
+            state.quiz.score++;
+            selectedButton.classList.add('correct-answer');
+        } else {
+            selectedButton.classList.add('wrong-answer');
+            if (!state.quiz.missedWords.includes(question)) {
+                state.quiz.missedWords.push(question);
+            }
+        }
+
+        document.querySelectorAll('.btn-option').forEach(button => {
+            button.classList.add('disabled-option');
+            if (button.dataset.answer === 'true') {
+                button.classList.add('correct-answer');
+            }
+        });
+        
+        elements.definitionContainer.innerHTML = `
+            <div class="flex items-center gap-x-3">
+                <p class="font-bold text-lg text-indigo-800">${question.english}</p>
+                <span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">${question.partOfSpeech}</span>
+            </div>
+            <p class="font-semibold text-gray-700 mt-1">${question.spanish}</p>
+            <div class="mt-2 text-sm text-gray-600 space-y-1">
+                <p><strong class="font-medium text-gray-900">EN:</strong> ${question.definition_en}</p>
+                <p><strong class="font-medium text-gray-900">ES:</strong> ${question.definition_es}</p>
+            </div>
+            ${question.example_en ? `
+            <div class="mt-3 pt-3 border-t border-indigo-200">
+                <p class="font-semibold text-sm text-gray-800">Ejemplo:</p>
+                <p class="text-sm text-gray-600 italic">"${question.example_en}"</p>
+                <p class="text-sm text-gray-600 italic mt-1">"${question.example_es}"</p>
+            </div>
+            ` : ''}
+        `;
+        elements.definitionContainer.classList.remove('hidden');
+        elements.definitionContainer.classList.add('fade-in');
+        
+        elements.score.textContent = state.quiz.score;
+        elements.nextQuestionBtn.classList.remove('hidden');
+    };
+
+    const nextQuestion = () => {
+        state.quiz.currentQuestionIndex++;
+        if (state.quiz.currentQuestionIndex < state.quiz.questions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    };
+    
+    const showResults = () => {
+        elements.quizContainer.style.display = 'none';
+        elements.resultsContainer.style.display = 'block';
+        elements.resultsContainer.classList.add('fade-in');
+        elements.finalScore.textContent = `${state.quiz.score} / ${state.quiz.questions.length}`;
+
+        if (state.quiz.missedWords.length > 0) {
+            elements.reviewMissedBtn.classList.remove('hidden');
+        } else {
+            elements.reviewMissedBtn.classList.add('hidden');
+        }
+    };
+
+    const renderReviewList = () => {
+        switchView('review');
+        elements.reviewView.classList.add('fade-in');
+
+        if (state.quiz.missedWords.length === 0) {
+            elements.reviewList.innerHTML = `<p class="text-center text-gray-500">¡No hay palabras para repasar, felicidades!</p>`;
+            elements.startReviewQuizBtn.classList.add('hidden');
+            return;
+        }
+
+        elements.startReviewQuizBtn.classList.remove('hidden');
+        elements.reviewList.innerHTML = state.quiz.missedWords
+            .sort((a, b) => a.english.localeCompare(b.english))
+            .map(item => `
+            <div class="p-3 bg-gray-50 rounded-lg border">
+                <p class="font-bold text-lg text-indigo-700">${item.english}</p>
+                <p class="font-semibold text-lg text-gray-800">${item.spanish}</p>
+            </div>
+        `).join('');
+    };
+
+    // --- 5. EVENT LISTENERS ---
+    elements.btnQuizView.addEventListener('click', () => switchView('quiz'));
+    elements.btnDictView.addEventListener('click', () => switchView('dictionary'));
+    elements.searchInput.addEventListener('input', (e) => renderDictionary(e.target.value));
+    
+    document.querySelectorAll('#mode-selection-view button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const mode = e.target.dataset.mode;
+            startQuiz(false, mode);
+        });
+    });
+
+    elements.nextQuestionBtn.addEventListener('click', nextQuestion);
+    elements.restartQuizBtn.addEventListener('click', () => startQuiz(false, state.quiz.mode));
+    elements.reviewMissedBtn.addEventListener('click', renderReviewList);
+    elements.startReviewQuizBtn.addEventListener('click', () => startQuiz(true));
+    elements.backToResultsBtn.addEventListener('click', showResults);
+    elements.changeModeBtn.addEventListener('click', () => {
+        state.quiz.mode = null;
+        showModeSelection();
+    });
+    
+    // --- 6. INICIALIZACIÓN ---
+    document.addEventListener('DOMContentLoaded', () => {
+        switchView('quiz');
+    });
+
+</script>
+</body>
+</html>

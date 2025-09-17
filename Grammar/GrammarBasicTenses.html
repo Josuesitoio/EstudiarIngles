@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering Basic Tenses | Aprende Inglés</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        // Configuración de Tailwind para usar la fuente 'Inter'
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .main-nav::-webkit-scrollbar { display: none; }
+        .main-nav { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-600 antialiased">
+
+    <div id="app-wrapper" class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="relative text-center mb-8 lg:mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Mastering Basic Tenses
+            </h1>
+            <p class="mt-3 text-lg text-slate-500 max-w-2xl mx-auto">
+                Una guía esencial para construir oraciones correctas en presente, pasado y futuro.
+            </p>
+            <button id="hamburger-btn" class="lg:hidden absolute top-0 right-0 p-2 rounded-md text-slate-600 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                <span class="sr-only">Abrir menú principal</span>
+                <svg id="menu-open-icon" class="block h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+                <svg id="menu-close-icon" class="hidden h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            <aside class="lg:col-span-3 lg:sticky lg:top-8 self-start mb-8 lg:mb-0">
+                <nav id="nav-menu" class="hidden lg:flex flex-col gap-2 pb-4 lg:pb-0 bg-white lg:bg-transparent rounded-lg p-4 lg:p-0 shadow-lg lg:shadow-none">
+                    </nav>
+            </aside>
+            <main id="content-area" class="lg:col-span-9">
+                </main>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const contentData = {
+            "simplePresent": {
+                "title": "Presente Simple",
+                "subtitle": "Hábitos y Hechos",
+                "accentColor": "#22c55e", // Green-500
+                "explanation": "El Presente Simple se usa para hablar de acciones habituales, rutinas, hechos generales y verdades universales. Es la forma base del verbo, pero recuerda añadir -s o -es para la tercera persona del singular (he, she, it).",
+                "html": `
+                    <div class="space-y-8 mt-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Estructura Gramatical</h3>
+                            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                                <div class="p-4 bg-slate-50 rounded-lg">
+                                    <p class="font-semibold text-slate-700">Afirmativo (+)</p>
+                                    <p class="mt-2">I/You/We/They <b>work</b>.</p>
+                                    <p class="mt-1">He/She/It <b>works</b>.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg">
+                                    <p class="font-semibold text-slate-700">Negativo (-)</p>
+                                    <p class="mt-2">I/You/We/They <b>do not (don't) work</b>.</p>
+                                    <p class="mt-1">He/She/It <b>does not (doesn't) work</b>.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-lg">
+                                    <p class="font-semibold text-slate-700">Interrogativo (?)</p>
+                                    <p class="mt-2"><b>Do</b> I/you/we/they <b>work</b>?</p>
+                                    <p class="mt-1"><b>Does</b> he/she/it <b>work</b>?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Usos Clave</h3>
+                            <ul class="space-y-3">
+                                <li data-accent-color="true"><b>Rutinas y Hábitos:</b> She <b>drinks</b> coffee every morning.</li>
+                                <li data-accent-color="true"><b>Hechos y Verdades Generales:</b> The Earth <b>revolves</b> around the Sun.</li>
+                                <li data-accent-color="true"><b>Horarios y Programas:</b> The train <b>leaves</b> at 9 AM.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                           <h4 class="font-semibold text-green-800">¡Regla de la -s!</h4>
+                           <p class="mt-2 text-sm text-slate-700">La regla más importante es añadir <b>-s</b> al verbo para <b>he, she, it</b>. Para verbos que terminan en -o, -sh, -ch, -x, -z, se añade <b>-es</b> (e.g., go -> goes, watch -> watches). Para verbos que terminan en consonante + y, se cambia la 'y' por <b>-ies</b> (e.g., study -> studies).</p>
+                        </div>
+                    </div>`
+            },
+            "presentContinuous": {
+                "title": "Presente Continuo",
+                "subtitle": "Acciones en Progreso",
+                "accentColor": "#3b82f6", // Blue-500
+                "explanation": "El Presente Continuo describe acciones que están sucediendo en el momento exacto en que se habla. También se usa para situaciones temporales y planes futuros confirmados. Se forma con el verbo 'to be' (am, is, are) como auxiliar y el verbo principal en gerundio (-ing).",
+                "html": `
+                    <div class="space-y-8 mt-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Estructura: Verbo 'to be' + Verbo-ing</h3>
+                             <div class="overflow-x-auto rounded-lg border border-slate-200">
+                               <table class="w-full text-sm">
+                                 <thead class="bg-slate-50"><tr><th class="p-3 font-semibold text-left">Tipo</th><th class="p-3 font-semibold text-left">Ejemplo</th></tr></thead>
+                                 <tbody class="bg-white divide-y divide-slate-200">
+                                   <tr><td class="p-3"><b>Afirmativo</b></td><td class="p-3">They <b>are watching</b> a movie.</td></tr>
+                                   <tr><td class="p-3"><b>Negativo</b></td><td class="p-3">He <b>is not (isn't) sleeping</b>.</td></tr>
+                                   <tr><td class="p-3"><b>Interrogativo</b></td><td class="p-3"><b>Are</b> you <b>listening</b> to me?</td></tr>
+                                 </tbody>
+                               </table>
+                             </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Usos Clave</h3>
+                            <ul class="space-y-3">
+                                <li data-accent-color="true"><b>Acciones en este momento:</b> Please be quiet, I <b>am working</b>.</li>
+                                <li data-accent-color="true"><b>Situaciones Temporales:</b> She <b>is living</b> in London for a few months.</li>
+                                <li data-accent-color="true"><b>Planes Futuros (Agendados):</b> We <b>are meeting</b> our friends tonight.</li>
+                            </ul>
+                        </div>
+                    </div>`
+            },
+            "simplePast": {
+                "title": "Pasado Simple",
+                "subtitle": "Acciones Terminadas",
+                "accentColor": "#ef4444", // Red-500
+                "explanation": "El Pasado Simple se utiliza para acciones que comenzaron y terminaron en un momento específico del pasado. Es crucial distinguir entre verbos regulares (que terminan en -ed) y los irregulares (que tienen una forma propia). Para negar y preguntar, se usa el auxiliar 'did'.",
+                "html": `
+                     <div class="space-y-8 mt-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Estructura Gramatical</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="font-semibold text-slate-700">Afirmativo (+)</p>
+                                    <ul class="text-sm mt-2 space-y-1 list-disc list-inside">
+                                        <li>Regular: They <b>worked</b> yesterday.</li>
+                                        <li>Irregular: She <b>went</b> to the party.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Negativo (-) / Interrogativo (?)</p>
+                                    <ul class="text-sm mt-2 space-y-1 list-disc list-inside">
+                                        <li>They <b>did not (didn't) work</b>.</li>
+                                        <li><b>Did</b> she <b>go</b> to the party?</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <p class="mt-4 p-3 bg-red-50 text-sm rounded-lg border border-red-200"><b>Importante:</b> En negaciones y preguntas, el verbo principal siempre va en su forma base (infinitivo), porque 'did' ya indica el pasado.</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Marcadores de Tiempo Comunes</h3>
+                            <p class="text-slate-600"><code>yesterday</code>, <code>last week</code>, <code>last month</code>, <code>five years ago</code>, <code>in 2010</code>.</p>
+                        </div>
+                    </div>`
+            },
+            "futureWill": {
+                "title": "Futuro con 'Will'",
+                "subtitle": "Predicciones y Decisiones Espontáneas",
+                "accentColor": "#8b5cf6", // Violet-500
+                "explanation": "El futuro con 'will' se usa para hablar de predicciones, decisiones tomadas en el momento, promesas y ofrecimientos. La estructura es muy simple: 'will' + la forma base del verbo para todos los sujetos. La forma negativa es 'will not' o 'won't'.",
+                "html": `
+                    <div class="space-y-8 mt-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Estructura: Will + Infinitivo</h3>
+                             <div class="overflow-x-auto rounded-lg border border-slate-200">
+                               <table class="w-full text-sm">
+                                 <thead class="bg-slate-50"><tr><th class="p-3 font-semibold text-left">Tipo</th><th class="p-3 font-semibold text-left">Ejemplo</th></tr></thead>
+                                 <tbody class="bg-white divide-y divide-slate-200">
+                                   <tr><td class="p-3"><b>Afirmativo</b></td><td class="p-3">I think it <b>will rain</b> tomorrow.</td></tr>
+                                   <tr><td class="p-3"><b>Negativo</b></td><td class="p-3">She <b>will not (won't) be</b> late.</td></tr>
+                                   <tr><td class="p-3"><b>Interrogativo</b></td><td class="p-3"><b>Will</b> you <b>help</b> me?</td></tr>
+                                 </tbody>
+                               </table>
+                             </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Usos Clave</h3>
+                            <ul class="space-y-3">
+                                <li data-accent-color="true"><b>Decisión Espontánea:</b> The phone is ringing. I'<b>ll get</b> it!</li>
+                                <li data-accent-color="true"><b>Predicción (Opinión):</b> I think the team <b>will win</b> the match.</li>
+                                <li data-accent-color="true"><b>Promesa u Ofrecimiento:</b> I <b>will</b> always love you. I'<b>ll carry</b> your bag for you.</li>
+                            </ul>
+                        </div>
+                    </div>`
+            },
+            "goingTo": {
+                "title": "Futuro con 'Going To'",
+                "subtitle": "Planes e Intenciones",
+                "accentColor": "#14b8a6", // Teal-500
+                "explanation": "Se usa 'be going to' para hablar de planes futuros que ya han sido decididos antes de hablar, o para hacer predicciones basadas en una evidencia clara y presente. La estructura es Verbo 'to be' + 'going to' + la forma base del verbo.",
+                "html": `
+                    <div class="space-y-8 mt-8">
+                         <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Estructura: Verbo 'to be' + Going To + Infinitivo</h3>
+                             <div class="overflow-x-auto rounded-lg border border-slate-200">
+                               <table class="w-full text-sm">
+                                 <thead class="bg-slate-50"><tr><th class="p-3 font-semibold text-left">Tipo</th><th class="p-3 font-semibold text-left">Ejemplo</th></tr></thead>
+                                 <tbody class="bg-white divide-y divide-slate-200">
+                                   <tr><td class="p-3"><b>Afirmativo</b></td><td class="p-3">We <b>are going to travel</b> to Japan next year.</td></tr>
+                                   <tr><td class="p-3"><b>Negativo</b></td><td class="p-3">He <b>is not going to sell</b> his car.</td></tr>
+                                   <tr><td class="p-3"><b>Interrogativo</b></td><td class="p-3"><b>Are</b> you <b>going to watch</b> the game?</td></tr>
+                                 </tbody>
+                               </table>
+                             </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Usos Clave</h3>
+                            <ul class="space-y-3">
+                                <li data-accent-color="true"><b>Planes e Intenciones Previas:</b> I have the tickets. I'<b>m going to see</b> the concert on Friday.</li>
+                                <li data-accent-color="true"><b>Predicción con Evidencia:</b> Look at those dark clouds. It'<b>s going to rain</b>.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-teal-50 rounded-lg border border-teal-200">
+                           <h4 class="font-semibold text-teal-800">'Will' vs. 'Going To'</h4>
+                           <p class="mt-2 text-sm text-slate-700"><b>Will</b> = Decisión en el momento. "I'm thirsty. I think I <b>will buy</b> a drink."</p>
+                           <p class="mt-1 text-sm text-slate-700"><b>Going to</b> = Plan previo. "I'm thirsty. I brought a water bottle because I knew I <b>was going to be</b> thirsty."</p>
+                        </div>
+                    </div>`
+            },
+            quiz: {
+                title: 'Quiz Interactivo',
+                subtitle: 'Pon a prueba tu conocimiento',
+                accentColor: '#0ea5e9' // Sky-500
+            }
+        };
+
+        const quizData = [
+            { question: "She ___ to the gym every Tuesday and Thursday.", options: ["goes", "is going", "go", "went"], correct: 0 },
+            { question: "Be quiet! The baby ___.", options: ["sleeps", "is sleeping", "slept", "will sleep"], correct: 1 },
+            { question: "We ___ a fantastic film last night.", options: ["see", "are seeing", "saw", "will see"], correct: 2 },
+            { question: "I haven't made any plans for the weekend. Maybe I ___ visit my parents.", options: ["am going to", "will", "visit", "am visiting"], correct: 1 },
+            { question: "Look at the time! We ___ miss the bus.", options: ["will", "are going to", "miss", "are missing"], correct: 1 },
+            { question: "My brother ___ in a bank.", options: ["is working", "works", "worked", "will work"], correct: 1 },
+            { question: "What ___ you ___ at 10 PM yesterday?", options: ["did... do", "do... do", "are... doing", "were... doing"], correct: 0 },
+            { question: "I've already decided. I ___ learn to play the guitar.", options: ["will", "am going to", "learn", "am learning"], correct: 1 },
+            { question: "This box is heavy. I ___ help you carry it.", options: ["am going to", "help", "will", "am helping"], correct: 2 },
+            { question: "He ___ breakfast right now.", options: ["has", "have", "is having", "will have"], correct: 2 }
+        ];
+
+        // --- SCRIPT LOGIC ---
+        const navMenu = document.getElementById('nav-menu');
+        const contentArea = document.getElementById('content-area');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const menuOpenIcon = document.getElementById('menu-open-icon');
+        const menuCloseIcon = document.getElementById('menu-close-icon');
+
+        let state = {
+            currentView: 'simplePresent',
+            quiz: { currentQuestionIndex: 0, score: 0, answered: false }
+        };
+        
+        const icons = {
+            simplePresent: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 10a1 1 0 01-1-1H2a1 1 0 010-2h1a1 1 0 011 1zm13-1a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4.343 4.343a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm11.314 11.314a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM4.343 15.657a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zm11.314-11.314a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zM10 5a5 5 0 100 10 5 5 0 000-10z"/></svg>`,
+            presentContinuous: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>`,
+            simplePast: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z" clip-rule="evenodd" /></svg>`,
+            futureWill: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" /></svg>`,
+            goingTo: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1h2V3zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM6 11a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zM6 15a1 1 0 011-1h4a1 1 0 110 2H7a1 1 0 01-1-1z" /><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-2h12v10H4V3z" clip-rule="evenodd" /></svg>`,
+            quiz: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>`,
+        };
+
+        function renderNav() {
+            navMenu.innerHTML = Object.keys(contentData).map(key => {
+                const data = contentData[key];
+                const isActive = state.currentView === key;
+                const activeClasses = 'bg-indigo-600 text-white shadow-lg';
+                const inactiveClasses = 'text-slate-500 hover:bg-slate-100 hover:text-slate-800';
+                return `
+                    <button class="btn-nav w-full flex-shrink-0 lg:w-full flex items-center text-left text-md font-semibold rounded-lg p-3 transition-all duration-200 ease-in-out ${isActive ? activeClasses : inactiveClasses}" data-section="${key}">
+                        ${icons[key] || ''}
+                        <span>${data.title}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function applyAccentColor(accent) {
+            document.querySelectorAll('[data-accent-color="true"]').forEach(el => {
+                el.style.borderLeftColor = accent;
+                el.querySelectorAll('b').forEach(b => b.style.color = accent);
+            });
+            document.querySelectorAll('table code').forEach(el => {
+                el.style.backgroundColor = `${accent}20`;
+                el.style.color = accent;
+            });
+        }
+
+        function renderContent() {
+            const viewKey = state.currentView;
+            const data = contentData[viewKey];
+            
+            if (viewKey === 'quiz') {
+                renderQuiz();
+                return;
+            }
+
+            contentArea.innerHTML = `
+                <div class="card bg-white rounded-2xl shadow-lg p-6 sm:p-8 transition-all duration-300 animate-fade-in" style="border-top: 4px solid ${data.accentColor};">
+                    <h2 class="text-3xl font-bold text-slate-900">${data.title} <span class="text-slate-400 font-medium">(${data.subtitle})</span></h2>
+                    <p class="mt-2 text-slate-600 leading-relaxed">${data.explanation}</p>
+                    ${data.html}
+                </div>
+            `;
+            
+            contentArea.querySelectorAll('li[data-accent-color="true"]').forEach(el => el.classList.add('bg-slate-50', 'p-3', 'rounded-lg', 'border-l-4'));
+            contentArea.querySelectorAll('table td').forEach(el => el.classList.add('p-3'));
+            contentArea.querySelectorAll('table code').forEach(el => el.classList.add('font-semibold', 'px-2', 'py-1', 'rounded-md', 'text-sm'));
+            applyAccentColor(data.accentColor);
+        }
+        
+        function renderQuiz() {
+            const data = contentData.quiz;
+            const isFinished = state.quiz.currentQuestionIndex >= quizData.length;
+            
+            let quizHTML;
+            if (isFinished) {
+                const score = state.quiz.score;
+                const total = quizData.length;
+                const percentage = Math.round((score / total) * 100);
+                let message = "¡Buen trabajo! Sigue practicando para perfeccionar tu dominio.";
+                if (percentage >= 80) message = "🎉 ¡Excelente! Tienes un gran dominio de estos tiempos verbales.";
+                
+                quizHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-slate-900">${data.title} - Resultados</h2>
+                        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-6">
+                            <p class="text-lg text-slate-600">Tu puntuación final:</p>
+                            <p class="my-4 text-7xl font-extrabold" style="color: ${data.accentColor};">${score}<span class="text-4xl text-slate-400 font-medium">/${total}</span></p>
+                            <div class="w-full bg-slate-200 rounded-full h-4 my-4">
+                                <div class="bg-green-500 h-4 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                            <p class="text-slate-600">${message}</p>
+                            <button id="restart-quiz-btn" class="mt-8 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                                Intentar de nuevo
+                            </button>
+                        </div>
+                    </div>`;
+            } else {
+                const q = quizData[state.quiz.currentQuestionIndex];
+                const progress = ((state.quiz.currentQuestionIndex) / quizData.length) * 100;
+                quizHTML = `
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">${data.title}</h2>
+                    <p class="text-slate-500 mb-6">Pregunta ${state.quiz.currentQuestionIndex + 1} de ${quizData.length}</p>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 mb-6">
+                        <div id="progress-bar" class="h-2.5 rounded-full transition-all duration-300" style="width: ${progress}%; background-color: ${data.accentColor};"></div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <p class="text-xl font-semibold text-slate-800 mb-6">${q.question}</p>
+                        <div id="options-container" class="space-y-3">
+                            ${q.options.map((opt, i) => `
+                                <button class="btn-option w-full text-left p-4 rounded-lg border-2 border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200" data-option-index="${i}">
+                                    <span class="font-semibold text-slate-700">${opt}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="quiz-navigation" class="text-right mt-6">
+                            <button id="next-question-btn" class="bg-indigo-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none">
+                                Siguiente
+                            </button>
+                        </div>
+                    </div>`;
+            }
+            contentArea.innerHTML = `<div class="animate-fade-in">${quizHTML}</div>`;
+            if (!isFinished) {
+                document.getElementById('progress-bar').style.width = `${((state.quiz.currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            }
+            addQuizEventListeners();
+        }
+
+        function handleNavClick(e) {
+            const button = e.target.closest('.btn-nav');
+            if (!button) return;
+            
+            state.currentView = button.dataset.section;
+            if (state.currentView === 'quiz') {
+                state.quiz = { currentQuestionIndex: 0, score: 0, answered: false };
+            }
+
+            renderNav();
+            renderContent();
+            
+            if (window.innerWidth < 1024) { 
+                toggleMobileMenu();
+            }
+        }
+        
+        function toggleMobileMenu() {
+            navMenu.classList.toggle('hidden');
+            menuOpenIcon.classList.toggle('hidden');
+            menuCloseIcon.classList.toggle('hidden');
+        }
+
+        function handleOptionClick(e) {
+            if (state.quiz.answered) return;
+            state.quiz.answered = true;
+
+            const selectedBtn = e.target.closest('.btn-option');
+            if (!selectedBtn) return;
+
+            const q = quizData[state.quiz.currentQuestionIndex];
+            const selectedIndex = parseInt(selectedBtn.dataset.optionIndex);
+
+            const allOptions = document.querySelectorAll('.btn-option');
+            
+            allOptions.forEach((btn, index) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50');
+                if (index === q.correct) {
+                    btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                    btn.innerHTML += `<span class="float-right"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></span>`;
+                }
+            });
+
+            if (selectedIndex === q.correct) {
+                state.quiz.score++;
+            } else {
+                selectedBtn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                selectedBtn.innerHTML += `<span class="float-right"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></span>`;
+            }
+            
+            const nextBtn = document.getElementById('next-question-btn');
+            nextBtn.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none');
+        }
+
+        function addQuizEventListeners() {
+            const options = document.getElementById('options-container');
+            if(options) options.addEventListener('click', handleOptionClick);
+            
+            const nextBtn = document.getElementById('next-question-btn');
+            if(nextBtn) nextBtn.addEventListener('click', () => {
+                state.quiz.currentQuestionIndex++;
+                state.quiz.answered = false;
+                renderQuiz();
+            });
+
+            const restartBtn = document.getElementById('restart-quiz-btn');
+            if(restartBtn) restartBtn.addEventListener('click', () => {
+                state.quiz = { currentQuestionIndex: 0, score: 0, answered: false };
+                renderQuiz();
+            });
+        }
+        
+        function init() {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.5s ease-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+
+            navMenu.addEventListener('click', handleNavClick);
+            hamburgerBtn.addEventListener('click', toggleMobileMenu);
+
+            renderNav();
+            renderContent();
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Vocabulario: Idioms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        @media (min-width: 640px) {
+            .card {
+                padding: 2rem;
+            }
+        }
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .btn-nav {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .btn-nav.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        .btn-option {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .btn-option:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+            transform: translateY(-2px);
+        }
+        .btn-action {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .btn-action:hover {
+            background-color: #4338ca;
+        }
+        .correct-answer {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+            transform: scale(1.02);
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+        .disabled-option {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="w-full max-w-2xl mx-auto">
+        <div class="card">
+            <div class="flex justify-center space-x-2 sm:space-x-4 mb-6 border-b pb-4">
+                <button id="btn-quiz-view" class="btn btn-nav active w-1/2">Quiz</button>
+                <button id="btn-dict-view" class="btn btn-nav w-1/2">Diccionario</button>
+            </div>
+
+            <div id="quiz-view">
+                <div id="mode-selection-view" class="text-center">
+                    <h2 class="text-2xl font-bold mb-6">Elige un modo de juego</h2>
+                    <div class="space-y-4">
+                        <button data-mode="translation" class="btn btn-action w-full text-lg">¿Cuál es la traducción?</button>
+                        <button data-mode="definition" class="btn btn-action w-full text-lg">¿Qué palabra es? (Definición)</button>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="text-center hidden">
+                    <div id="quiz-header" class="mb-4">
+                        <p class="text-sm text-gray-500">Pregunta <span id="question-count">1</span> de <span id="total-questions">50</span></p>
+                        <p class="font-semibold">Puntaje: <span id="score">0</span></p>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-bold mb-6 min-h-[100px] flex items-center justify-center" id="question-word">Cargando...</h2>
+                    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        </div>
+                    <div id="definition-container" class="hidden mt-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg text-left">
+                        </div>
+                    <button id="next-question-btn" class="btn btn-action w-full hidden mt-6">Siguiente</button>
+                </div>
+                 <div id="results-container" class="text-center hidden">
+                    <h2 class="text-3xl font-bold mb-4">¡Quiz Terminado!</h2>
+                    <p class="text-xl mb-6">Tu puntaje final es: <span id="final-score" class="font-bold"></span></p>
+                    <button id="restart-quiz-btn" class="btn btn-action w-full">Jugar de Nuevo</button>
+                    <button id="review-missed-btn" class="btn btn-nav w-full mt-3 hidden">Repasar Palabras Falladas</button>
+                    <button id="change-mode-btn" class="btn btn-nav w-full mt-3">Cambiar de Modo</button>
+                </div>
+            </div>
+
+            <div id="dictionary-view" class="hidden">
+                <h2 class="text-2xl font-bold text-center mb-4">Diccionario</h2>
+                <input type="text" id="search-input" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Buscar en inglés o español...">
+                <div id="dictionary-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+            </div>
+            
+            <div id="review-view" class="hidden">
+                 <h2 class="text-2xl font-bold text-center mb-4">Palabras para Repasar</h2>
+                 <div id="review-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 mb-6"></div>
+                 <button id="start-review-quiz-btn" class="btn btn-action w-full">Iniciar Quiz de Repaso</button>
+                 <button id="back-to-results-btn" class="btn btn-nav w-full mt-3">Volver a Resultados</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- 1. DATOS ---
+    const vocabulary = [
+  { 
+    english: "a blessing in disguise",
+    spanish: "no hay mal que por bien no venga",
+    definition_en: "A good thing that seemed bad at first.",
+    definition_es: "Algo bueno que al principio parecía malo.",
+    partOfSpeech: "idiom",
+    example_en: "Losing that job was a blessing in disguise; I found a much better one.",
+    example_es: "Perder ese trabajo fue una bendición disfrazada; encontré uno mucho mejor."
+  },
+  {
+    english: "a dime a dozen",
+    spanish: "ser muy común / haber a montones",
+    definition_en: "Something common and of little value.",
+    definition_es: "Algo que es muy común y de poco valor.",
+    partOfSpeech: "idiom",
+    example_en: "Experts in this field are a dime a dozen.",
+    example_es: "Los expertos en este campo abundan."
+  },
+  {
+    english: "beat around the bush",
+    spanish: "andarse con rodeos",
+    definition_en: "Avoid saying what you mean, usually because it is uncomfortable.",
+    definition_es: "Evitar decir lo que quieres decir, normalmente porque es incómodo.",
+    partOfSpeech: "idiom",
+    example_en: "Stop beating around the bush and tell me what happened.",
+    example_es: "Deja de andarte con rodeos y dime qué pasó."
+  },
+  {
+    english: "bite the bullet",
+    spanish: "hacer de tripas corazón",
+    definition_en: "To endure a difficult situation or to get it over with because it is inevitable.",
+    definition_es: "Soportar una situación difícil o superarla porque es inevitable.",
+    partOfSpeech: "idiom",
+    example_en: "I have to bite the bullet and finish this project tonight.",
+    example_es: "Tengo que hacer de tripas corazón y terminar este proyecto esta noche."
+  },
+  {
+    english: "break a leg",
+    spanish: "mucha suerte",
+    definition_en: "A way to wish someone good luck, especially before a performance.",
+    definition_es: "Una forma de desearle buena suerte a alguien, especialmente antes de una actuación.",
+    partOfSpeech: "idiom",
+    example_en: "You have a big presentation tomorrow? Break a leg!",
+    example_es: "¿Tienes una gran presentación mañana? ¡Mucha suerte!"
+  },
+  {
+    english: "call it a day",
+    spanish: "dar por terminado el día",
+    definition_en: "To stop working on something.",
+    definition_es: "Dejar de trabajar en algo.",
+    partOfSpeech: "idiom",
+    example_en: "We've been working for 10 hours. Let's call it a day.",
+    example_es: "Hemos estado trabajando durante 10 horas. Démoslo por terminado por hoy."
+  },
+  {
+    english: "cut somebody some slack",
+    spanish: "ser indulgente con alguien",
+    definition_en: "To not judge someone too harshly.",
+    definition_es: "No juzgar a alguien con demasiada dureza.",
+    partOfSpeech: "idiom",
+    example_en: "He's going through a lot, so cut him some slack.",
+    example_es: "Está pasando por mucho, así que sé un poco indulgente con él."
+  },
+  {
+    english: "cutting corners",
+    spanish: "hacer algo de mala gana para ahorrar",
+    definition_en: "To do something poorly or cheaply to save time or money.",
+    definition_es: "Hacer algo de manera deficiente o barata para ahorrar tiempo o dinero.",
+    partOfSpeech: "idiom",
+    example_en: "The company was cutting corners on safety, and it led to an accident.",
+    example_es: "La empresa estaba recortando en seguridad, y eso provocó un accidente."
+  },
+  {
+    english: "easy does it",
+    spanish: "con calma / con cuidado",
+    definition_en: "To do something slowly and carefully.",
+    definition_es: "Hacer algo despacio y con cuidado.",
+    partOfSpeech: "idiom",
+    example_en: "Easy does it with that vase; it's very fragile.",
+    example_es: "Con cuidado con ese jarrón; es muy frágil."
+  },
+  {
+    english: "get out of hand",
+    spanish: "írsele de las manos",
+    definition_en: "To become difficult to control.",
+    definition_es: "Volverse difícil de controlar.",
+    partOfSpeech: "idiom",
+    example_en: "The party started to get out of hand, so we called the police.",
+    example_es: "La fiesta empezó a írsele de las manos, así que llamamos a la policía."
+  },
+  {
+    english: "get your act together",
+    spanish: "ponerse las pilas / organizarse",
+    definition_en: "To start behaving properly or organize oneself to be more effective.",
+    definition_es: "Empezar a comportarse adecuadamente u organizarse para ser más eficaz.",
+    partOfSpeech: "idiom",
+    example_en: "You need to get your act together if you want to pass the exam.",
+    example_es: "Necesitas ponerte las pilas si quieres aprobar el examen."
+  },
+  {
+    english: "give someone the benefit of the doubt",
+    spanish: "darle a alguien el beneficio de la duda",
+    definition_en: "To trust what someone says, even without proof.",
+    definition_es: "Confiar en lo que alguien dice, incluso sin pruebas.",
+    partOfSpeech: "idiom",
+    example_en: "I don't know if he's telling the truth, but I'll give him the benefit of the doubt.",
+    example_es: "No sé si está diciendo la verdad, pero le daré el beneficio de la duda."
+  },
+  {
+    english: "go back to the drawing board",
+    spanish: "empezar de cero",
+    definition_en: "To start over after a plan or idea was not successful.",
+    definition_es: "Empezar de nuevo después de que un plan o una idea no tuviera éxito.",
+    partOfSpeech: "idiom",
+    example_en: "Our proposal was rejected, so it's back to the drawing board.",
+    example_es: "Nuestra propuesta fue rechazada, así que toca empezar de cero."
+  },
+  {
+    english: "hang in there",
+    spanish: "aguantar / no rendirse",
+    definition_en: "An expression of encouragement to not give up.",
+    definition_es: "Una expresión de ánimo para no rendirse.",
+    partOfSpeech: "idiom",
+    example_en: "I know you're tired, but hang in there. You're almost finished.",
+    example_es: "Sé que estás cansado, pero aguanta. Ya casi terminas."
+  },
+  {
+    english: "hit the sack",
+    spanish: "irse a dormir",
+    definition_en: "To go to bed.",
+    definition_es: "Irse a la cama.",
+    partOfSpeech: "idiom",
+    example_en: "I'm exhausted, I think I'm going to hit the sack.",
+    example_es: "Estoy agotado, creo que me voy a ir a dormir."
+  },
+  {
+    english: "it's not rocket science",
+    spanish: "no es tan difícil / no es cosa del otro mundo",
+    definition_en: "Used to say that something is not complicated.",
+    definition_es: "Se usa para decir que algo no es complicado.",
+    partOfSpeech: "idiom",
+    example_en: "Just follow the instructions; it's not rocket science.",
+    example_es: "Solo sigue las instrucciones; no es tan difícil."
+  },
+  {
+    english: "let someone off the hook",
+    spanish: "dejar que alguien se libre de un problema",
+    definition_en: "To allow someone to escape from a difficult situation or responsibility.",
+    definition_es: "Permitir que alguien escape de una situación difícil o de una responsabilidad.",
+    partOfSpeech: "idiom",
+    example_en: "I'll let you off the hook this time, but don't be late again.",
+    example_es: "Te dejaré librarte esta vez, pero no vuelvas a llegar tarde."
+  },
+  {
+    english: "make a long story short",
+    spanish: "para resumir",
+    definition_en: "To tell the main points of a story without the details.",
+    definition_es: "Contar los puntos principales de una historia sin los detalles.",
+    partOfSpeech: "idiom",
+    example_en: "To make a long story short, we missed our flight.",
+    example_es: "Para resumir, perdimos nuestro vuelo."
+  },
+  {
+    english: "miss the boat",
+    spanish: "perder una oportunidad",
+    definition_en: "To lose an opportunity by being too slow.",
+    definition_es: "Perder una oportunidad por ser demasiado lento.",
+    partOfSpeech: "idiom",
+    example_en: "The tickets are sold out. You missed the boat.",
+    example_es: "Las entradas están agotadas. Perdiste la oportunidad."
+  },
+  {
+    english: "no pain, no gain",
+    spanish: "sin esfuerzo no hay recompensa",
+    definition_en: "You have to work for what you want.",
+    definition_es: "Tienes que trabajar por lo que quieres.",
+    partOfSpeech: "idiom",
+    example_en: "I've been studying for hours, but no pain, no gain.",
+    example_es: "He estado estudiando durante horas, pero sin esfuerzo no hay recompensa."
+  },
+  {
+    english: "on the ball",
+    spanish: "estar alerta / ser competente",
+    definition_en: "To be quick to understand and react to things.",
+    definition_es: "Ser rápido para entender y reaccionar a las cosas.",
+    partOfSpeech: "idiom",
+    example_en: "Our new manager is really on the ball.",
+    example_es: "Nuestro nuevo gerente es realmente competente."
+  },
+  {
+    english: "pull someone's leg",
+    spanish: "tomarle el pelo a alguien",
+    definition_en: "To joke with someone.",
+    definition_es: "Bromear con alguien.",
+    partOfSpeech: "idiom",
+    example_en: "Are you serious or are you just pulling my leg?",
+    example_es: "¿Lo dices en serio o solo me estás tomando el pelo?"
+  },
+  {
+    english: "pull yourself together",
+    spanish: "calmarse / recomponerse",
+    definition_en: "To calm down and behave normally.",
+    definition_es: "Calmarse y comportarse con normalidad.",
+    partOfSpeech: "idiom",
+    example_en: "I know you're upset, but you need to pull yourself together.",
+    example_es: "Sé que estás molesto, pero necesitas calmarte."
+  },
+  {
+    english: "so far so good",
+    spanish: "hasta ahora todo bien",
+    definition_en: "Things are going well up to this point.",
+    definition_es: "Las cosas van bien hasta este momento.",
+    partOfSpeech: "idiom",
+    example_en: "How's the new job? So far so good.",
+    example_es: "¿Qué tal el nuevo trabajo? Hasta ahora todo bien."
+  },
+  {
+    english: "speak of the devil",
+    spanish: "hablando del rey de Roma",
+    definition_en: "Said when a person appears just after being mentioned.",
+    definition_es: "Se dice cuando una persona aparece justo después de ser mencionada.",
+    partOfSpeech: "idiom",
+    example_en: "Did you hear what happened to John? Oh, speak of the devil, here he comes.",
+    example_es: "¿Supiste lo que le pasó a John? Oh, hablando del rey de Roma, ahí viene."
+  },
+  {
+    english: "that's the last straw",
+    spanish: "esta es la gota que colma el vaso",
+    definition_en: "My patience has run out.",
+    definition_es: "Mi paciencia se ha agotado.",
+    partOfSpeech: "idiom",
+    example_en: "He's late again. That's the last straw!",
+    example_es: "Llega tarde otra vez. ¡Es la gota que colma el vaso!"
+  },
+  {
+    english: "the best of both worlds",
+    spanish: "lo mejor de ambos mundos",
+    definition_en: "A situation in which you can enjoy the advantages of two very different things at the same time.",
+    definition_es: "Una situación en la que puedes disfrutar de las ventajas de dos cosas muy diferentes al mismo tiempo.",
+    partOfSpeech: "idiom",
+    example_en: "She works in the city and lives in the country, so she gets the best of both worlds.",
+    example_es: "Ella trabaja en la ciudad y vive en el campo, así que tiene lo mejor de ambos mundos."
+  },
+  {
+    english: "under the weather",
+    spanish: "sentirse mal / estar pachucho",
+    definition_en: "To feel ill.",
+    definition_es: "Sentirse enfermo.",
+    partOfSpeech: "idiom",
+    example_en: "I'm feeling a bit under the weather today.",
+    example_es: "Hoy me siento un poco mal."
+  },
+  {
+    english: "we'll cross that bridge when we come to it",
+    spanish: "ya veremos qué hacer cuando llegue el momento",
+    definition_en: "We will deal with a problem when it happens, not before.",
+    definition_es: "Nos ocuparemos de un problema cuando ocurra, no antes.",
+    partOfSpeech: "idiom",
+    example_en: "I'm worried about the exam, but we'll cross that bridge when we come to it.",
+    example_es: "Me preocupa el examen, pero ya veremos qué hacer cuando llegue el momento."
+  },
+  {
+    english: "wrap your head around something",
+    spanish: "entender algo complicado",
+    definition_en: "To succeed in understanding something difficult or strange.",
+    definition_es: "Lograr entender algo difícil o extraño.",
+    partOfSpeech: "idiom",
+    example_en: "I'm trying to wrap my head around this new software.",
+    example_es: "Estoy tratando de entender este nuevo software."
+  },
+  {
+    english: "a penny for your thoughts",
+    spanish: "¿en qué piensas?",
+    definition_en: "A way of asking what someone is thinking.",
+    definition_es: "Una forma de preguntar en qué está pensando alguien.",
+    partOfSpeech: "idiom",
+    example_en: "You've been quiet for a while. A penny for your thoughts?",
+    example_es: "Has estado callado un rato. ¿En qué piensas?"
+  },
+  {
+    english: "actions speak louder than words",
+    spanish: "las acciones valen más que las palabras",
+    definition_en: "What you do is more important than what you say.",
+    definition_es: "Lo que haces es más importante que lo que dices.",
+    partOfSpeech: "idiom",
+    example_en: "He promised to help, but actions speak louder than words.",
+    example_es: "Prometió ayudar, pero las acciones valen más que las palabras."
+  },
+  {
+    english: "add insult to injury",
+    spanish: "echar leña al fuego",
+    definition_en: "To make a bad situation worse.",
+    definition_es: "Empeorar una situación ya de por sí mala.",
+    partOfSpeech: "idiom",
+    example_en: "First, my car broke down, and to add insult to injury, it started to rain.",
+    example_es: "Primero, mi coche se averió y, para echar más leña al fuego, empezó a llover."
+  },
+  {
+    english: "at the drop of a hat",
+    spanish: "en un abrir y cerrar de ojos",
+    definition_en: "Immediately, without any hesitation.",
+    definition_es: "Inmediatamente, sin dudarlo.",
+    partOfSpeech: "idiom",
+    example_en: "He's ready to go on an adventure at the drop of a hat.",
+    example_es: "Está listo para irse de aventura en un abrir y cerrar de ojos."
+  },
+  {
+    english: "barking up the wrong tree",
+    spanish: "estar equivocado / apuntar en la dirección incorrecta",
+    definition_en: "To be wrong about the reason for something or the way to achieve it.",
+    definition_es: "Estar equivocado sobre la razón de algo o la forma de lograrlo.",
+    partOfSpeech: "idiom",
+    example_en: "If you think I'm responsible for this mess, you're barking up the wrong tree.",
+    example_es: "Si crees que soy el responsable de este desastre, estás muy equivocado."
+  },
+  {
+    english: "birds of a feather flock together",
+    spanish: "Dios los cría y ellos se juntan",
+    definition_en: "People who are similar to each other tend to spend time together.",
+    definition_es: "Las personas que son similares tienden a pasar tiempo juntas.",
+    partOfSpeech: "idiom",
+    example_en: "I'm not surprised they are friends; birds of a feather flock together.",
+    example_es: "No me sorprende que sean amigos; Dios los cría y ellos se juntan."
+  },
+  {
+    english: "bite off more than you can chew",
+    spanish: "quien mucho abarca, poco aprieta",
+    definition_en: "To try to do something that is too difficult for you.",
+    definition_es: "Intentar hacer algo que es demasiado difícil para ti.",
+    partOfSpeech: "idiom",
+    example_en: "By accepting two jobs, he's biting off more than he can chew.",
+    example_es: "Al aceptar dos trabajos, está abarcando más de lo que puede."
+  },
+  {
+    english: "break the ice",
+    spanish: "romper el hielo",
+    definition_en: "To make people who have not met before feel more relaxed with each other.",
+    definition_es: "Hacer que las personas que no se conocían se sientan más relajadas entre sí.",
+    partOfSpeech: "idiom",
+    example_en: "A good joke can help break the ice at a party.",
+    example_es: "Un buen chiste puede ayudar a romper el hielo en una fiesta."
+  },
+  {
+    english: "by the skin of your teeth",
+    spanish: "por los pelos",
+    definition_en: "To only just succeed in doing something.",
+    definition_es: "Lograr hacer algo por muy poco.",
+    partOfSpeech: "idiom",
+    example_en: "He passed the exam by the skin of his teeth.",
+    example_es: "Aprobó el examen por los pelos."
+  },
+  {
+    english: "cry over spilt milk",
+    spanish: "lamentarse por algo que no tiene remedio",
+    definition_en: "To complain about a loss from the past.",
+    definition_es: "Quejarse por una pérdida del pasado.",
+    partOfSpeech: "idiom",
+    example_en: "It's no use crying over spilt milk; the decision is made.",
+    example_es: "No sirve de nada lamentarse; la decisión está tomada."
+  },
+  {
+    english: "cut to the chase",
+    spanish: "ir al grano",
+    definition_en: "To get to the point without wasting time.",
+    definition_es: "Ir al punto importante sin perder tiempo.",
+    partOfSpeech: "idiom",
+    example_en: "I don't have much time, so let's cut to the chase.",
+    example_es: "No tengo mucho tiempo, así que vayamos al grano."
+  },
+  {
+    english: "devil's advocate",
+    spanish: "abogado del diablo",
+    definition_en: "Someone who pretends to disagree with an argument to test it or provoke debate.",
+    definition_es: "Alguien que finge no estar de acuerdo con un argumento para probarlo o provocar un debate.",
+    partOfSpeech: "idiom",
+    example_en: "Let me play devil's advocate here and question your plan.",
+    example_es: "Permíteme hacer de abogado del diablo y cuestionar tu plan."
+  },
+  {
+    english: "don't count your chickens before they hatch",
+    spanish: "no vendas la piel del oso antes de cazarlo",
+    definition_en: "Don't make plans for something that might not happen.",
+    definition_es: "No hagas planes para algo que podría no suceder.",
+    partOfSpeech: "idiom",
+    example_en: "You might get the job, but don't count your chickens before they hatch.",
+    example_es: "Puede que consigas el trabajo, pero no vendas la piel del oso antes de cazarlo."
+  },
+  {
+    english: "don't put all your eggs in one basket",
+    spanish: "no te lo juegues todo a una carta",
+    definition_en: "You should not depend on only one thing for success.",
+    definition_es: "No deberías depender de una sola cosa para tener éxito.",
+    partOfSpeech: "idiom",
+    example_en: "Diversify your investments. Don't put all your eggs in one basket.",
+    example_es: "Diversifica tus inversiones. No te lo juegues todo a una carta."
+  },
+  {
+    english: "every cloud has a silver lining",
+    spanish: "no hay mal que por bien no venga",
+    definition_en: "Every difficult situation has a more hopeful side.",
+    definition_es: "Toda situación difícil tiene un lado más esperanzador.",
+    partOfSpeech: "idiom",
+    example_en: "I was sad to leave, but every cloud has a silver lining, and I love my new city.",
+    example_es: "Estaba triste por irme, pero no hay mal que por bien no venga, y me encanta mi nueva ciudad."
+  },
+  {
+    english: "feel a bit under the weather",
+    spanish: "sentirse un poco enfermo",
+    definition_en: "To feel slightly ill.",
+    definition_es: "Sentirse ligeramente enfermo.",
+    partOfSpeech: "idiom",
+    example_en: "I'm not going to the party, I'm feeling a bit under the weather.",
+    example_es: "No voy a la fiesta, me siento un poco enfermo."
+  },
+  {
+    english: "hear it on the grapevine",
+    spanish: "enterarse de algo por un rumor",
+    definition_en: "To hear rumors about something or someone.",
+    definition_es: "Escuchar rumores sobre algo o alguien.",
+    partOfSpeech: "idiom",
+    example_en: "I heard on the grapevine that she's getting promoted.",
+    example_es: "Me enteré por un rumor de que la van a ascender."
+  },
+  {
+    english: "hit the nail on the head",
+    spanish: "dar en el clavo",
+    definition_en: "To describe exactly what is causing a situation or problem.",
+    definition_es: "Describir exactamente lo que está causando una situación o problema.",
+    partOfSpeech: "idiom",
+    example_en: "You hit the nail on the head with that analysis.",
+    example_es: "Diste en el clavo con ese análisis."
+  },
+  {
+    english: "in the heat of the moment",
+    spanish: "en el calor del momento",
+    definition_en: "Overwhelmed by what is happening in the moment.",
+    definition_es: "Abrumado por lo que está sucediendo en el momento.",
+    partOfSpeech: "idiom",
+    example_en: "He didn't mean it; he said it in the heat of the moment.",
+    example_es: "No lo dijo en serio; lo dijo en el calor del momento."
+  },
+  {
+    english: "it takes two to tango",
+    spanish: "se necesitan dos para bailar un tango",
+    definition_en: "Both people involved in a situation are responsible for it.",
+    definition_es: "Ambas personas involucradas en una situación son responsables de ella.",
+    partOfSpeech: "idiom",
+    example_en: "She blames him for the argument, but it takes two to tango.",
+    example_es: "Ella lo culpa por la discusión, pero se necesitan dos para bailar un tango."
+  },
+  {
+    english: "jump on the bandwagon",
+    spanish: "subirse al carro",
+    definition_en: "To join a popular activity or trend.",
+    definition_es: "Unirse a una actividad o tendencia popular.",
+    partOfSpeech: "idiom",
+    example_en: "Everyone is wearing that style now; she just jumped on the bandwagon.",
+    example_es: "Todo el mundo lleva ese estilo ahora; ella simplemente se subió al carro."
+  },
+  {
+    english: "kill two birds with one stone",
+    spanish: "matar dos pájaros de un tiro",
+    definition_en: "To achieve two things at the same time.",
+    definition_es: "Lograr dos cosas al mismo tiempo.",
+    partOfSpeech: "idiom",
+    example_en: "I can pick up the groceries on my way home and kill two birds with one stone.",
+    example_es: "Puedo recoger los víveres de camino a casa y matar dos pájaros de un tiro."
+  },
+  {
+    english: "let the cat out of the bag",
+    spanish: "revelar un secreto",
+    definition_en: "To accidentally reveal a secret.",
+    definition_es: "Revelar accidentalmente un secreto.",
+    partOfSpeech: "idiom",
+    example_en: "It was supposed to be a surprise party, but someone let the cat out of the bag.",
+    example_es: "Se suponía que era una fiesta sorpresa, pero alguien reveló el secreto."
+  },
+  {
+    english: "once in a blue moon",
+    spanish: "de higos a brevas / muy de vez en cuando",
+    definition_en: "Very rarely.",
+    definition_es: "Muy raramente.",
+    partOfSpeech: "idiom",
+    example_en: "I only go to the cinema once in a blue moon.",
+    example_es: "Solo voy al cine de higos a brevas."
+  },
+  {
+    english: "a piece of cake",
+    spanish: "pan comido",
+    definition_en: "Something very easy to do.",
+    definition_es: "Algo muy fácil de hacer.",
+    partOfSpeech: "idiom",
+    example_en: "The exam was a piece of cake.",
+    example_es: "El examen fue pan comido."
+  },
+  {
+    english: "rain on someone's parade",
+    spanish: "aguarle la fiesta a alguien",
+    definition_en: "To spoil someone's pleasure.",
+    definition_es: "Arruinar el placer de alguien.",
+    partOfSpeech: "idiom",
+    example_en: "I don't want to rain on your parade, but the concert is cancelled.",
+    example_es: "No quiero aguarte la fiesta, pero el concierto está cancelado."
+  },
+  {
+    english: "saving for a rainy day",
+    spanish: "ahorrar para cuando vengan vacas flacas",
+    definition_en: "Saving money for a time when it might be needed unexpectedly.",
+    definition_es: "Ahorrar dinero para un momento en que pueda necesitarse inesperadamente.",
+    partOfSpeech: "idiom",
+    example_en: "I put 10% of my salary aside, saving for a rainy day.",
+    example_es: "Aparto el 10% de mi sueldo, ahorrando para tiempos difíciles."
+  },
+  {
+    english: "see eye to eye",
+    spanish: "estar de acuerdo",
+    definition_en: "To agree with someone.",
+    definition_es: "Estar de acuerdo con alguien.",
+    partOfSpeech: "idiom",
+    example_en: "My sister and I don't see eye to eye on politics.",
+    example_es: "Mi hermana y yo no estamos de acuerdo en política."
+  },
+  {
+    english: "spill the beans",
+    spanish: "irse de la lengua / contar el secreto",
+    definition_en: "To disclose a secret.",
+    definition_es: "Revelar un secreto.",
+    partOfSpeech: "idiom",
+    example_en: "Come on, spill the beans! What did he say?",
+    example_es: "¡Venga, suéltalo! ¿Qué dijo?"
+  },
+  {
+    english: "steal someone's thunder",
+    spanish: "robarle el protagonismo a alguien",
+    definition_en: "To take credit for something someone else did.",
+    definition_es: "Llevarse el mérito por algo que otra persona hizo.",
+    partOfSpeech: "idiom",
+    example_en: "She announced her engagement at my party and totally stole my thunder.",
+    example_es: "Anunció su compromiso en mi fiesta y me robó todo el protagonismo."
+  },
+  {
+    english: "take it with a grain of salt",
+    spanish: "tomárselo con pinzas",
+    definition_en: "To not take something too seriously.",
+    definition_es: "No tomarse algo demasiado en serio.",
+    partOfSpeech: "idiom",
+    example_en: "He exaggerates a lot, so take his story with a grain of salt.",
+    example_es: "Él exagera mucho, así que tómate su historia con pinzas."
+  },
+  {
+    english: "the elephant in the room",
+    spanish: "un secreto a voces / un problema evidente que se ignora",
+    definition_en: "A major problem or controversial issue that is obviously present but avoided as a subject for discussion.",
+    definition_es: "Un problema importante o tema controvertido que es obvio pero que se evita discutir.",
+    partOfSpeech: "idiom",
+    example_en: "We need to address the elephant in the room: our budget deficit.",
+    example_es: "Necesitamos abordar el problema evidente: nuestro déficit presupuestario."
+  },
+  {
+    english: "the whole nine yards",
+    spanish: "todo / con todo lujo de detalles",
+    definition_en: "Everything. All of it.",
+    definition_es: "Todo. Absolutamente todo.",
+    partOfSpeech: "idiom",
+    example_en: "He wanted a big wedding, with a live band, fireworks, the whole nine yards.",
+    example_es: "Quería una boda grande, con banda en vivo, fuegos artificiales, todo por todo lo alto."
+  },
+  {
+    english: "throw caution to the wind",
+    spanish: "tirar la casa por la ventana / ser temerario",
+    definition_en: "To do something without worrying about the risk or negative results.",
+    definition_es: "Hacer algo sin preocuparse por el riesgo o los resultados negativos.",
+    partOfSpeech: "idiom",
+    example_en: "She threw caution to the wind and quit her job to travel the world.",
+    example_es: "Fue temeraria y dejó su trabajo para viajar por el mundo."
+  },
+  {
+    english: "turn a blind eye",
+    spanish: "hacer la vista gorda",
+    definition_en: "To ignore something that you know is wrong.",
+    definition_es: "Ignorar algo que sabes que está mal.",
+    partOfSpeech: "idiom",
+    example_en: "The teacher turned a blind eye to the student cheating.",
+    example_es: "El profesor hizo la vista gorda ante el estudiante que copiaba."
+  },
+  {
+    english: "a chip on your shoulder",
+    spanish: "estar resentido",
+    definition_en: "To seem angry all the time because you think you have been treated unfairly.",
+    definition_es: "Parecer enojado todo el tiempo porque crees que has sido tratado injustamente.",
+    partOfSpeech: "idiom",
+    example_en: "He has a chip on his shoulder because he didn't get the promotion.",
+    example_es: "Está resentido porque no consiguió el ascenso."
+  },
+  {
+    english: "cry wolf",
+    spanish: "dar una falsa alarma",
+    definition_en: "To ask for help when you don't need it, causing people to not believe you when you really need help.",
+    definition_es: "Pedir ayuda cuando no la necesitas, haciendo que la gente no te crea cuando realmente la necesitas.",
+    partOfSpeech: "idiom",
+    example_en: "If you keep crying wolf, no one will come when you're actually in trouble.",
+    example_es: "Si sigues dando falsas alarmas, nadie vendrá cuando de verdad estés en problemas."
+  },
+  {
+    english: "fit as a fiddle",
+    spanish: "estar en plena forma",
+    definition_en: "To be in very good health.",
+    definition_es: "Estar en muy buena salud.",
+    partOfSpeech: "idiom",
+    example_en: "My grandfather is 90, but he's fit as a fiddle.",
+    example_es: "Mi abuelo tiene 90 años, pero está en plena forma."
+  },
+  {
+    english: "go down in flames",
+    spanish: "fracasar estrepitosamente",
+    definition_en: "To fail spectacularly.",
+    definition_es: "Fracasar de manera espectacular.",
+    partOfSpeech: "idiom",
+    example_en: "His ambitious project went down in flames.",
+    example_es: "Su ambicioso proyecto fracasó estrepitosamente."
+  },
+  {
+    english: "have a blast",
+    spanish: "pasarlo en grande",
+    definition_en: "To have a very fun or exciting time.",
+    definition_es: "Pasar un rato muy divertido o emocionante.",
+    partOfSpeech: "idiom",
+    example_en: "We had a blast at the concert last night.",
+    example_es: "Anoche lo pasamos en grande en el concierto."
+  },
+  {
+    english: "ignorance is bliss",
+    spanish: "la ignorancia es la felicidad",
+    definition_en: "You may be happier not knowing the truth about something.",
+    definition_es: "Puedes ser más feliz sin saber la verdad sobre algo.",
+    partOfSpeech: "idiom",
+    example_en: "I didn't know about the problems, and ignorance was bliss.",
+    example_es: "No sabía de los problemas, y la ignorancia era la felicidad."
+  },
+  {
+    english: "look before you leap",
+    spanish: "mira antes de saltar / piénsalo dos veces",
+    definition_en: "Think carefully about the possible consequences before you act.",
+    definition_es: "Piensa detenidamente en las posibles consecuencias antes de actuar.",
+    partOfSpeech: "idiom",
+    example_en: "You should look before you leap when making big life decisions.",
+    example_es: "Deberías pensarlo dos veces antes de tomar grandes decisiones en la vida."
+  },
+  {
+    english: "on cloud nine",
+    spanish: "estar en el séptimo cielo",
+    definition_en: "To be extremely happy and excited.",
+    definition_es: "Estar extremadamente feliz y emocionado.",
+    partOfSpeech: "idiom",
+    example_en: "She's been on cloud nine since she got engaged.",
+    example_es: "Ha estado en el séptimo cielo desde que se comprometió."
+  },
+  {
+    english: "read between the lines",
+    spanish: "leer entre líneas",
+    definition_en: "To understand the hidden meaning in what is said or written.",
+    definition_es: "Entender el significado oculto en lo que se dice o escribe.",
+    partOfSpeech: "idiom",
+    example_en: "She said she was fine, but reading between the lines, I could tell she was upset.",
+    example_es: "Dijo que estaba bien, pero leyendo entre líneas, me di cuenta de que estaba molesta."
+  },
+  {
+    english: "taste of your own medicine",
+    spanish: "probar tu propia medicina",
+    definition_en: "When you receive the same bad treatment that you have given to others.",
+    definition_es: "Cuando recibes el mismo mal trato que has dado a otros.",
+    partOfSpeech: "idiom",
+    example_en: "He's always rude to people, but he got a taste of his own medicine today.",
+    example_es: "Siempre es grosero con la gente, pero hoy probó su propia medicina."
+  },
+  {
+    english: "costs an arm and a leg",
+    spanish: "cuesta un ojo de la cara",
+    definition_en: "To be very expensive.",
+    definition_es: "Ser muy caro.",
+    partOfSpeech: "idiom",
+    example_en: "I'd love to buy that car, but it costs an arm and a leg.",
+    example_es: "Me encantaría comprar ese coche, pero cuesta un ojo de la cara."
+  },
+  {
+    english: "sit on the fence",
+    spanish: "ser indeciso / no tomar partido",
+    definition_en: "To avoid making a decision or choice.",
+    definition_es: "Evitar tomar una decisión o elección.",
+    partOfSpeech: "idiom",
+    example_en: "You can't sit on the fence any longer; you have to choose a side.",
+    example_es: "No puedes seguir siendo indeciso; tienes que elegir un bando."
+  },
+  {
+    english: "the ball is in your court",
+    spanish: "la pelota está en tu tejado",
+    definition_en: "It is now your responsibility to take the next action.",
+    definition_es: "Ahora es tu responsabilidad dar el siguiente paso.",
+    partOfSpeech: "idiom",
+    example_en: "I've done all I can; the ball is in your court now.",
+    example_es: "He hecho todo lo que he podido; ahora la pelota está en tu tejado."
+  },
+  {
+    english: "best thing since sliced bread",
+    spanish: "el mejor invento desde la Coca-Cola",
+    definition_en: "A very good invention or innovation; a good idea or plan.",
+    definition_es: "Una invención o innovación muy buena; una buena idea o plan.",
+    partOfSpeech: "idiom",
+    example_en: "This new app is the best thing since sliced bread.",
+    example_es: "Esta nueva aplicación es el mejor invento del mundo."
+  },
+  {
+    english: "curiosity killed the cat",
+    spanish: "la curiosidad mató al gato",
+    definition_en: "Being too inquisitive can lead you into an unpleasant situation.",
+    definition_es: "Ser demasiado curioso puede llevarte a una situación desagradable.",
+    partOfSpeech: "idiom",
+    example_en: "Don't ask about his personal life. Remember, curiosity killed the cat.",
+    example_es: "No preguntes por su vida personal. Recuerda, la curiosidad mató al gato."
+  },
+  {
+    english: "comparing apples to oranges",
+    spanish: "comparar peras con manzanas",
+    definition_en: "To compare two things that cannot be compared.",
+    definition_es: "Comparar dos cosas que no se pueden comparar.",
+    partOfSpeech: "idiom",
+    example_en: "You can't compare their salaries; they work in different fields. It's like comparing apples to oranges.",
+    example_es: "No puedes comparar sus salarios; trabajan en campos diferentes. Es como comparar peras con manzanas."
+  },
+  {
+    english: "don't give up your day job",
+    spanish: "mejor dedícate a otra cosa",
+    definition_en: "Used humorously to tell someone they are not very good at something.",
+    definition_es: "Se usa con humor para decirle a alguien que no es muy bueno en algo.",
+    partOfSpeech: "idiom",
+    example_en: "Your singing was... interesting. Don't give up your day job!",
+    example_es: "Tu forma de cantar fue... interesante. ¡Mejor dedícate a otra cosa!"
+  },
+  {
+    english: "far cry from",
+    spanish: "estar muy lejos de",
+    definition_en: "Very different from.",
+    definition_es: "Muy diferente de.",
+    partOfSpeech: "idiom",
+    example_en: "This small apartment is a far cry from the mansion they used to live in.",
+    example_es: "Este pequeño apartamento está muy lejos de la mansión en la que vivían."
+  },
+  {
+    english: "method to my madness",
+    spanish: "tener un método para mi locura",
+    definition_en: "There is a purpose in what one is doing, even though it seems strange.",
+    definition_es: "Hay un propósito en lo que uno está haciendo, aunque parezca extraño.",
+    partOfSpeech: "idiom",
+    example_en: "My desk is messy, but there is a method to my madness.",
+    example_es: "Mi escritorio está desordenado, pero tengo un método para mi locura."
+  },
+  {
+    english: "not playing with a full deck",
+    spanish: "no estar en sus cabales / faltarle un tornillo",
+    definition_en: "Someone who is mentally deficient or crazy.",
+    definition_es: "Alguien que es deficiente mental o está loco.",
+    partOfSpeech: "idiom",
+    example_en: "I think that guy is not playing with a full deck.",
+    example_es: "Creo que a ese tipo le falta un tornillo."
+  },
+  {
+    english: "put a sock in it",
+    spanish: "¡cierra el pico!",
+    definition_en: "A rude way of telling someone to be quiet.",
+    definition_es: "Una forma grosera de decirle a alguien que se calle.",
+    partOfSpeech: "idiom",
+    example_en: "I'm trying to concentrate, so please put a sock in it!",
+    example_es: "Estoy tratando de concentrarme, ¡así que cierra el pico!"
+  },
+  {
+    english: "rock the boat",
+    spanish: "crear problemas / agitar las aguas",
+    definition_en: "To do or say something that will upset people or cause trouble.",
+    definition_es: "Hacer o decir algo que molestará a la gente o causará problemas.",
+    partOfSpeech: "idiom",
+    example_en: "Don't rock the boat until the negotiations are finished.",
+    example_es: "No crees problemas hasta que terminen las negociaciones."
+  },
+  {
+    english: "straight from the horse's mouth",
+    spanish: "de primera mano",
+    definition_en: "From the original or most reliable source.",
+    definition_es: "De la fuente original o más fiable.",
+    partOfSpeech: "idiom",
+    example_en: "I got the news straight from the horse's mouth; the director told me himself.",
+    example_es: "Recibí la noticia de primera mano; el director me lo dijo él mismo."
+  },
+  {
+    english: "there are other fish in the sea",
+    spanish: "hay más peces en el mar",
+    definition_en: "There are many other people or opportunities available.",
+    definition_es: "Hay muchas otras personas u oportunidades disponibles.",
+    partOfSpeech: "idiom",
+    example_en: "Don't be sad about the breakup. There are other fish in the sea.",
+    example_es: "No estés triste por la ruptura. Hay más peces en el mar."
+  },
+  {
+    english: "hold your horses",
+    spanish: "para el carro / no te apresures",
+    definition_en: "Wait a moment; don't be so hasty.",
+    definition_es: "Espera un momento; no te precipites.",
+    partOfSpeech: "idiom",
+    example_en: "Hold your horses! We haven't won yet.",
+    example_es: "¡Para el carro! Todavía no hemos ganado."
+  },
+  {
+    english: "let sleeping dogs lie",
+    spanish: "no buscarle tres pies al gato",
+    definition_en: "To avoid restarting a conflict.",
+    definition_es: "Evitar reanudar un conflicto.",
+    partOfSpeech: "idiom",
+    example_en: "I wanted to ask him about the money again, but I decided to let sleeping dogs lie.",
+    example_es: "Quería volver a preguntarle por el dinero, pero decidí no remover el pasado."
+  },
+  {
+    english: "through thick and thin",
+    spanish: "en las buenas y en las malas",
+    definition_en: "In both good and bad times.",
+    definition_es: "Tanto en los buenos como en los malos momentos.",
+    partOfSpeech: "idiom",
+    example_en: "They have been friends through thick and thin.",
+    example_es: "Han sido amigos en las buenas y en las malas."
+  },
+  {
+    english: "burn the midnight oil",
+    spanish: "quemarse las pestañas / trabajar hasta tarde",
+    definition_en: "To work late into the night.",
+    definition_es: "Trabajar hasta altas horas de la noche.",
+    partOfSpeech: "idiom",
+    example_en: "I have a big exam tomorrow, so I'll be burning the midnight oil tonight.",
+    example_es: "Mañana tengo un examen importante, así que esta noche me quemaré las pestañas estudiando."
+  },
+  {
+    english: "face the music",
+    spanish: "afrontar las consecuencias",
+    definition_en: "To accept criticism or punishment for something you have done.",
+    definition_es: "Aceptar la crítica o el castigo por algo que has hecho.",
+    partOfSpeech: "idiom",
+    example_en: "After failing the test, he had to go home and face the music.",
+    example_es: "Después de suspender el examen, tuvo que ir a casa y afrontar las consecuencias."
+  },
+  {
+    english: "water under the bridge",
+    spanish: "agua pasada",
+    definition_en: "Past events that are no longer important.",
+    definition_es: "Eventos pasados que ya no son importantes.",
+    partOfSpeech: "idiom",
+    example_en: "We used to argue, but that's all water under the bridge now.",
+    example_es: "Solíamos discutir, pero todo eso es agua pasada."
+  }
+];
+
+    // --- 2. ESTADO DE LA APLICACIÓN ---
+    let state = {
+        currentView: 'quiz',
+        quiz: {
+            questions: [],
+            missedWords: [],
+            currentQuestionIndex: 0,
+            score: 0,
+            answered: false,
+            mode: null,
+        },
+    };
+
+    const QUIZ_LENGTH = 50;
+    const NUM_OPTIONS = 4;
+
+    // --- 3. SELECTORES DEL DOM ---
+    const elements = {
+        btnQuizView: document.getElementById('btn-quiz-view'),
+        btnDictView: document.getElementById('btn-dict-view'),
+        quizView: document.getElementById('quiz-view'),
+        dictionaryView: document.getElementById('dictionary-view'),
+        reviewView: document.getElementById('review-view'),
+        modeSelectionView: document.getElementById('mode-selection-view'),
+        quizContainer: document.getElementById('quiz-container'),
+        resultsContainer: document.getElementById('results-container'),
+        questionCount: document.getElementById('question-count'),
+        totalQuestions: document.getElementById('total-questions'),
+        score: document.getElementById('score'),
+        questionWord: document.getElementById('question-word'),
+        optionsContainer: document.getElementById('options-container'),
+        definitionContainer: document.getElementById('definition-container'),
+        nextQuestionBtn: document.getElementById('next-question-btn'),
+        finalScore: document.getElementById('final-score'),
+        restartQuizBtn: document.getElementById('restart-quiz-btn'),
+        reviewMissedBtn: document.getElementById('review-missed-btn'),
+        changeModeBtn: document.getElementById('change-mode-btn'),
+        searchInput: document.getElementById('search-input'),
+        dictionaryList: document.getElementById('dictionary-list'),
+        reviewList: document.getElementById('review-list'),
+        startReviewQuizBtn: document.getElementById('start-review-quiz-btn'),
+        backToResultsBtn: document.getElementById('back-to-results-btn'),
+    };
+
+    // --- 4. FUNCIONES ---
+
+    const switchView = (view) => {
+        state.currentView = view;
+        elements.quizView.style.display = 'none';
+        elements.dictionaryView.style.display = 'none';
+        elements.reviewView.style.display = 'none';
+        elements.btnQuizView.classList.remove('active');
+        elements.btnDictView.classList.remove('active');
+
+        if (view === 'quiz') {
+            elements.quizView.style.display = 'block';
+            elements.btnQuizView.classList.add('active');
+            if (!state.quiz.mode) {
+                showModeSelection();
+            }
+        } else if (view === 'dictionary') {
+            elements.dictionaryView.style.display = 'block';
+            elements.btnDictView.classList.add('active');
+            renderDictionary();
+        } else if (view === 'review') {
+            elements.reviewView.style.display = 'block';
+            renderReviewList();
+        }
+    };
+    
+    const showModeSelection = () => {
+        elements.modeSelectionView.style.display = 'block';
+        elements.quizContainer.style.display = 'none';
+        elements.resultsContainer.style.display = 'none';
+    };
+
+    const renderDictionary = (filter = '') => {
+        const lowerCaseFilter = filter.toLowerCase();
+        const filteredVocab = vocabulary
+            .filter(item => 
+                item.english.toLowerCase().includes(lowerCaseFilter) ||
+                item.spanish.toLowerCase().includes(lowerCaseFilter)
+            )
+            .sort((a, b) => a.english.localeCompare(b.english));
+
+        if (filteredVocab.length === 0) {
+            elements.dictionaryList.innerHTML = `<p class="text-center text-gray-500">No se encontraron resultados.</p>`;
+            return;
+        }
+
+        elements.dictionaryList.innerHTML = filteredVocab.map(item => `
+            <div class="p-3 bg-gray-50 rounded-lg border">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-start">
+                    <div>
+                        <div class="flex items-center gap-x-3 mb-1">
+                            <p class="font-bold text-lg text-indigo-700">${item.english}</p>
+                            <span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">${item.partOfSpeech}</span>
+                        </div>
+                        <p class="font-semibold text-lg text-gray-800">${item.spanish}</p>
+                    </div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600 space-y-1">
+                   <p><strong class="font-medium text-gray-900">EN:</strong> ${item.definition_en}</p>
+                   <p><strong class="font-medium text-gray-900">ES:</strong> ${item.definition_es}</p>
+                </div>
+                ${item.example_en ? `
+                <div class="mt-2 pt-2 border-t border-gray-200">
+                    <p class="text-sm text-gray-500 italic">"${item.example_en}"</p>
+                </div>
+                ` : ''}
+            </div>
+        `).join('');
+    };
+
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    const startQuiz = (isReviewMode = false, mode) => {
+        state.quiz.mode = mode || state.quiz.mode;
+        
+        let sourceVocab;
+
+        if (isReviewMode && state.quiz.missedWords.length > 0) {
+            sourceVocab = [...state.quiz.missedWords];
+            state.quiz.missedWords = [];
+        } else {
+            sourceVocab = vocabulary;
+            state.quiz.missedWords = [];
+        }
+
+        const shuffledVocab = shuffleArray([...sourceVocab]);
+        const quizSize = isReviewMode ? sourceVocab.length : Math.min(QUIZ_LENGTH, vocabulary.length);
+        
+        state.quiz.questions = shuffledVocab.slice(0, quizSize);
+        state.quiz.currentQuestionIndex = 0;
+        state.quiz.score = 0;
+        state.quiz.answered = false;
+
+        elements.modeSelectionView.style.display = 'none';
+        elements.quizContainer.style.display = 'block';
+        elements.resultsContainer.style.display = 'none';
+        elements.totalQuestions.textContent = state.quiz.questions.length;
+
+        renderQuestion();
+    };
+    
+    const getWrongOptions = (correctItem) => {
+        const wrongOptions = [];
+        const vocabCopy = [...vocabulary];
+        let field = state.quiz.mode === 'translation' ? (correctItem.hasOwnProperty('spanish') ? 'spanish' : 'english') : 'english';
+        let correctValue = correctItem[field];
+
+        while (wrongOptions.length < NUM_OPTIONS - 1 && vocabCopy.length > 1) {
+            const randomIndex = Math.floor(Math.random() * vocabCopy.length);
+            const randomItem = vocabCopy[randomIndex];
+            
+            if (randomItem[field] !== correctValue && !wrongOptions.includes(randomItem[field])) {
+                wrongOptions.push(randomItem[field]);
+            }
+            vocabCopy.splice(randomIndex, 1);
+        }
+        return wrongOptions;
+    };
+
+    const renderQuestion = () => {
+        state.quiz.answered = false;
+        elements.nextQuestionBtn.classList.add('hidden');
+        elements.definitionContainer.classList.add('hidden');
+        elements.score.textContent = state.quiz.score;
+        elements.questionCount.textContent = state.quiz.currentQuestionIndex + 1;
+
+        const question = state.quiz.questions[state.quiz.currentQuestionIndex];
+        let questionText, correctAnswer, options;
+
+        if (state.quiz.mode === 'definition') {
+            questionText = question.definition_en;
+            correctAnswer = question.english;
+            const wrongAnswers = getWrongOptions(question);
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        } else {
+            const isEnglishQuestion = Math.random() < 0.5;
+            questionText = isEnglishQuestion ? question.english : question.spanish;
+            correctAnswer = isEnglishQuestion ? question.spanish : question.english;
+            const wrongAnswers = getWrongOptions({ [isEnglishQuestion ? 'spanish' : 'english']: correctAnswer });
+            options = shuffleArray([correctAnswer, ...wrongAnswers]);
+        }
+
+        elements.questionWord.textContent = questionText;
+        elements.optionsContainer.innerHTML = options.map(option => `
+            <button class="btn btn-option" data-answer="${option === correctAnswer}">${option}</button>
+        `).join('');
+
+        document.querySelectorAll('.btn-option').forEach(button => {
+            button.addEventListener('click', handleAnswer);
+        });
+    };
+
+    const handleAnswer = (e) => {
+        if (state.quiz.answered) return;
+        state.quiz.answered = true;
+
+        const selectedButton = e.target;
+        const isCorrect = selectedButton.dataset.answer === 'true';
+        const question = state.quiz.questions[state.quiz.currentQuestionIndex];
+
+        if (isCorrect) {
+            state.quiz.score++;
+            selectedButton.classList.add('correct-answer');
+        } else {
+            selectedButton.classList.add('wrong-answer');
+            if (!state.quiz.missedWords.includes(question)) {
+                state.quiz.missedWords.push(question);
+            }
+        }
+
+        document.querySelectorAll('.btn-option').forEach(button => {
+            button.classList.add('disabled-option');
+            if (button.dataset.answer === 'true') {
+                button.classList.add('correct-answer');
+            }
+        });
+        
+        elements.definitionContainer.innerHTML = `
+            <div class="flex items-center gap-x-3">
+                <p class="font-bold text-lg text-indigo-800">${question.english}</p>
+                <span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">${question.partOfSpeech}</span>
+            </div>
+            <p class="font-semibold text-gray-700 mt-1">${question.spanish}</p>
+            <div class="mt-2 text-sm text-gray-600 space-y-1">
+                <p><strong class="font-medium text-gray-900">EN:</strong> ${question.definition_en}</p>
+                <p><strong class="font-medium text-gray-900">ES:</strong> ${question.definition_es}</p>
+            </div>
+            ${question.example_en ? `
+            <div class="mt-3 pt-3 border-t border-indigo-200">
+                <p class="font-semibold text-sm text-gray-800">Ejemplo:</p>
+                <p class="text-sm text-gray-600 italic">"${question.example_en}"</p>
+                <p class="text-sm text-gray-600 italic mt-1">"${question.example_es}"</p>
+            </div>
+            ` : ''}
+        `;
+        elements.definitionContainer.classList.remove('hidden');
+        elements.definitionContainer.classList.add('fade-in');
+        
+        elements.score.textContent = state.quiz.score;
+        elements.nextQuestionBtn.classList.remove('hidden');
+    };
+
+    const nextQuestion = () => {
+        state.quiz.currentQuestionIndex++;
+        if (state.quiz.currentQuestionIndex < state.quiz.questions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    };
+    
+    const showResults = () => {
+        elements.quizContainer.style.display = 'none';
+        elements.resultsContainer.style.display = 'block';
+        elements.resultsContainer.classList.add('fade-in');
+        elements.finalScore.textContent = `${state.quiz.score} / ${state.quiz.questions.length}`;
+
+        if (state.quiz.missedWords.length > 0) {
+            elements.reviewMissedBtn.classList.remove('hidden');
+        } else {
+            elements.reviewMissedBtn.classList.add('hidden');
+        }
+    };
+
+    const renderReviewList = () => {
+        switchView('review');
+        elements.reviewView.classList.add('fade-in');
+
+        if (state.quiz.missedWords.length === 0) {
+            elements.reviewList.innerHTML = `<p class="text-center text-gray-500">¡No hay palabras para repasar, felicidades!</p>`;
+            elements.startReviewQuizBtn.classList.add('hidden');
+            return;
+        }
+
+        elements.startReviewQuizBtn.classList.remove('hidden');
+        elements.reviewList.innerHTML = state.quiz.missedWords
+            .sort((a, b) => a.english.localeCompare(b.english))
+            .map(item => `
+            <div class="p-3 bg-gray-50 rounded-lg border">
+                <p class="font-bold text-lg text-indigo-700">${item.english}</p>
+                <p class="font-semibold text-lg text-gray-800">${item.spanish}</p>
+            </div>
+        `).join('');
+    };
+
+    // --- 5. EVENT LISTENERS ---
+    elements.btnQuizView.addEventListener('click', () => switchView('quiz'));
+    elements.btnDictView.addEventListener('click', () => switchView('dictionary'));
+    elements.searchInput.addEventListener('input', (e) => renderDictionary(e.target.value));
+    
+    document.querySelectorAll('#mode-selection-view button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const mode = e.target.dataset.mode;
+            startQuiz(false, mode);
+        });
+    });
+
+    elements.nextQuestionBtn.addEventListener('click', nextQuestion);
+    elements.restartQuizBtn.addEventListener('click', () => startQuiz(false, state.quiz.mode));
+    elements.reviewMissedBtn.addEventListener('click', renderReviewList);
+    elements.startReviewQuizBtn.addEventListener('click', () => startQuiz(true));
+    elements.backToResultsBtn.addEventListener('click', showResults);
+    elements.changeModeBtn.addEventListener('click', () => {
+        state.quiz.mode = null;
+        showModeSelection();
+    });
+    
+    // --- 6. INICIALIZACIÓN ---
+    document.addEventListener('DOMContentLoaded', () => {
+        switchView('quiz');
+    });
+
+</script>
+</body>
+</html>

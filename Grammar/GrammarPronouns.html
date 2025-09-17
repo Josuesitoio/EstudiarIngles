@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering English Pronouns | Aprende Inglés</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        // Configuración de Tailwind para usar la fuente 'Inter'
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilo para la barra de desplazamiento en la navegación móvil (ya no es necesario pero se deja por si acaso) */
+        .main-nav::-webkit-scrollbar { display: none; }
+        .main-nav { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-600 antialiased">
+
+    <div id="app-wrapper" class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="relative text-center mb-8 lg:mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Mastering English Pronouns
+            </h1>
+            <p class="mt-3 text-lg text-slate-500 max-w-2xl mx-auto">
+                La guía definitiva para entender y usar los pronombres correctamente.
+            </p>
+             <button id="hamburger-btn" class="lg:hidden absolute top-0 right-0 p-2 rounded-md text-slate-600 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                <span class="sr-only">Abrir menú principal</span>
+                <svg id="menu-open-icon" class="block h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+                <svg id="menu-close-icon" class="hidden h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            <aside class="lg:col-span-3 lg:sticky lg:top-8 self-start mb-8 lg:mb-0">
+                 <nav id="nav-menu" class="hidden lg:flex flex-col gap-2 pb-4 lg:pb-0 bg-white lg:bg-transparent rounded-lg p-4 lg:p-0 shadow-lg lg:shadow-none">
+                    </nav>
+            </aside>
+            <main id="content-area" class="lg:col-span-9">
+                </main>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const contentData = {
+     "personal": {
+       "title": "Pronombres Personales",
+       "subtitle": "Sujeto y Objeto",
+       "accentColor": "#3b82f6",
+       "explanation": "Los pronombres personales reemplazan a un sustantivo (persona, lugar o cosa) para evitar repeticiones. Su forma es crucial y cambia dependiendo de su función en la oración: si actúan como sujeto (quien realiza la acción, generalmente antes del verbo) o como objeto (quien recibe la acción, generalmente después del verbo o de una preposición).",
+       "html": `
+         <div class="space-y-8 mt-8">
+           <div class="grid md:grid-cols-2 gap-8">
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Tabla de Equivalencias</h3>
+               <div class="overflow-x-auto rounded-lg border border-slate-200">
+                 <table class="w-full text-sm">
+                   <thead class="bg-slate-50">
+                     <tr>
+                       <th class="p-3 font-semibold text-left text-slate-600">Pronombre Sujeto</th>
+                       <th class="p-3 font-semibold text-left text-slate-600">Pronombre Objeto</th>
+                     </tr>
+                   </thead>
+                   <tbody class="bg-white divide-y divide-slate-200">
+                     <tr><td class="p-3"><code>I</code> (Yo)</td><td class="p-3"><code>me</code> (a mí, me)</td></tr>
+                     <tr><td class="p-3"><code>You</code> (Tú, usted, ustedes)</td><td class="p-3"><code>you</code> (a ti, te, a usted/es)</td></tr>
+                     <tr><td class="p-3"><code>He</code> (Él)</td><td class="p-3"><code>him</code> (a él, lo, le)</td></tr>
+                     <tr><td class="p-3"><code>She</code> (Ella)</td><td class="p-3"><code>her</code> (a ella, la, le)</td></tr>
+                     <tr><td class="p-3"><code>It</code> (Eso / ello)</td><td class="p-3"><code>it</code> (a eso, lo, le)</td></tr>
+                     <tr><td class="p-3"><code>We</code> (Nosotros/as)</td><td class="p-3"><code>us</code> (a nosotros/as, nos)</td></tr>
+                     <tr><td class="p-3"><code>They</code> (Ellos/as)</td><td class="p-3"><code>them</code> (a ellos/as, los, las, les)</td></tr>
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Posición y Uso</h3>
+               <ul class="space-y-3">
+                 <li data-accent-color="true"><b>Sujeto + Verbo:</b> <b>They</b> live in Mexico.</li>
+                 <li data-accent-color="true"><b>Verbo + Objeto:</b> She called <b>me</b> yesterday.</li>
+                 <li data-accent-color="true"><b>Preposición + Objeto:</b> This gift is for <b>him</b>.</li>
+                 <li data-accent-color="true"><b>Combinado:</b> <b>We</b> saw <b>them</b> at the party.</li>
+               </ul>
+             </div>
+           </div>
+           <div>
+             <h3 class="text-lg font-semibold text-slate-800 mb-4">Notas y Errores Comunes</h3>
+             <ul class="space-y-3">
+               <li class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                 <b>'My friends and I' vs 'My friends and me':</b> Usa 'I' cuando es sujeto y 'me' cuando es objeto.
+                 <p class="pl-4 mt-1 text-sm text-slate-600"><em>Correcto: <b>My friends and I</b> went to the cinema. (Sujeto)</em></p>
+                 <p class="pl-4 mt-1 text-sm text-slate-600"><em>Correcto: She invited <b>my friends and me</b>. (Objeto)</em></p>
+               </li>
+               <li class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                 <b>'They' singular:</b> Se usa cada vez más 'they/them' para referirse a una sola persona de género no especificado o no binario.
+                 <p class="pl-4 mt-1 text-sm text-slate-600"><em>Ej: If a customer needs help, <b>they</b> should ask for <b>it</b>.</em></p>
+               </li>
+             </ul>
+           </div>
+         </div>
+       `
+     },
+     "possessive": {
+       "title": "Posesivos",
+       "subtitle": "Adjetivos y Pronombres",
+       "accentColor": "#22c55e",
+       "explanation": "Los posesivos indican pertenencia. Es vital distinguir entre adjetivos posesivos (que modifican a un sustantivo, ej: 'my car') y pronombres posesivos (que reemplazan al sustantivo, ej: 'the car is mine'). El pronombre nunca va seguido de un sustantivo, ya lo incluye en su significado.",
+       "html": `
+         <div class="space-y-8 mt-8">
+           <div class="grid md:grid-cols-2 gap-8">
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Adjetivo vs. Pronombre</h3>
+               <div class="overflow-x-auto rounded-lg border border-slate-200">
+                 <table class="w-full text-sm">
+                   <thead class="bg-slate-50">
+                     <tr>
+                       <th class="p-3 font-semibold text-left text-slate-600">Adjetivo (+ sustantivo)</th>
+                       <th class="p-3 font-semibold text-left text-slate-600">Pronombre (reemplaza)</th>
+                     </tr>
+                   </thead>
+                   <tbody class="bg-white divide-y divide-slate-200">
+                     <tr><td class="p-3"><code>my</code></td><td class="p-3"><code>mine</code> (el/la mío/a)</td></tr>
+                     <tr><td class="p-3"><code>your</code></td><td class="p-3"><code>yours</code> (el/la tuyo/a)</td></tr>
+                     <tr><td class="p-3"><code>his</code></td><td class="p-3"><code>his</code> (el/la suyo/a de él)</td></tr>
+                     <tr><td class="p-3"><code>her</code></td><td class="p-3"><code>hers</code> (el/la suyo/a de ella)</td></tr>
+                     <tr><td class="p-3"><code>its</code></td><td class="p-3"><em>(No se usa como pronombre)</em></td></tr>
+                     <tr><td class="p-3"><code>our</code></td><td class="p-3"><code>ours</code> (el/la nuestro/a)</td></tr>
+                     <tr><td class="p-3"><code>their</code></td><td class="p-3"><code>theirs</code> (el/la suyo/a de ellos/as)</td></tr>
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Ejemplos Prácticos</h3>
+               <ul class="space-y-3">
+                 <li data-accent-color="true">This is <b>my car</b>. → The car is <b>mine</b>.</li>
+                 <li data-accent-color="true">Is that <b>her book</b>? → Is that book <b>hers</b>?</li>
+                 <li data-accent-color="true"><b>Their house</b> is big, but <b>ours</b> is small.</li>
+                 <li data-accent-color="true">La pregunta clave es 'Whose?': <em><b>Whose</b> phone is this? It's <b>his</b>.</em></li>
+               </ul>
+             </div>
+           </div>
+           <div>
+             <h3 class="text-lg font-semibold text-slate-800 mb-4">¡Cuidado con los Apóstrofes!</h3>
+             <p class="text-slate-600 text-sm">Los pronombres posesivos NUNCA llevan apóstrofe. Este es uno de los errores más comunes en inglés.</p>
+             <ul class="mt-4 space-y-2 text-sm">
+                 <li class="p-2 bg-red-50 text-red-700 rounded-md"><b>Incorrecto:</b> The dog lost it's bone. <b>Correcto:</b> The dog lost <b>its</b> bone.</li>
+                 <li class="p-2 bg-red-50 text-red-700 rounded-md"><b>Incorrecto:</b> The choice is your's. <b>Correcto:</b> The choice is <b>yours</b>.</li>
+                 <li class="p-2 bg-slate-100 rounded-md"><b>Nota:</b> 'It's' es la contracción de 'it is' o 'it has'. 'You're' es la contracción de 'you are'.</li>
+             </ul>
+           </div>
+         </div>
+       `
+     },
+     "reflexive": {
+       "title": "Pronombres Reflexivos",
+       "subtitle": "Acción sobre uno mismo",
+       "accentColor": "#8b5cf6",
+       "explanation": "Se usan cuando el sujeto y el objeto de una oración son la misma persona, es decir, la acción 'rebota' o se refleja en el sujeto. También se usan para dar énfasis, significando que el sujeto hizo la acción sin ayuda o en persona.",
+       "html": `
+         <div class="space-y-8 mt-8">
+           <div class="grid md:grid-cols-2 gap-8">
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Lista Completa</h3>
+               <div class="overflow-x-auto rounded-lg border border-slate-200">
+                 <table class="w-full text-sm">
+                   <thead class="bg-slate-50"><tr><th class="p-3 font-semibold text-left">Singular</th><th class="p-3 font-semibold text-left">Plural</th></tr></thead>
+                   <tbody class="bg-white divide-y divide-slate-200">
+                     <tr><td class="p-3"><code>myself</code> (a mí mismo)</td><td class="p-3"><code>ourselves</code> (a nosotros mismos)</td></tr>
+                     <tr><td class="p-3"><code>yourself</code> (a ti mismo)</td><td class="p-3"><code>yourselves</code> (a ustedes mismos)</td></tr>
+                     <tr><td class="p-3"><code>himself</code> (a sí mismo)</td><td class="p-3" rowspan="3" style="vertical-align: middle;"><code>themselves</code> (a sí mismos)</td></tr>
+                     <tr><td class="p-3"><code>herself</code> (a sí misma)</td></tr>
+                     <tr><td class="p-3"><code>itself</code> (a sí mismo)</td></tr>
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Casos de Uso</h3>
+               <ul class="space-y-3">
+                 <li data-accent-color="true"><b>Acción Reflexiva:</b> She taught <b>herself</b> to play the guitar.</li>
+                 <li data-accent-color="true"><b>Énfasis:</b> The CEO <b>himself</b> answered my email. (En persona)</li>
+                 <li data-accent-color="true"><b>'By + reflexivo' (sin ayuda):</b> I built this table <b>by myself</b>.</li>
+                 <li data-accent-color="true"><b>Diferencia:</b> <em>He cut <b>himself</b>.</em> (se cortó a sí mismo) vs. <em>He cut <b>him</b>.</em> (cortó a otro hombre).</li>
+               </ul>
+             </div>
+           </div>
+         </div>
+       `
+     },
+     "demonstrative": {
+       "title": "Pronombres Demostrativos",
+       "subtitle": "Señalar objetos o ideas",
+       "accentColor": "#f97316",
+       "explanation": "Señalan sustantivos específicos basándose en la distancia (cerca/lejos) y el número (singular/plural). Pueden funcionar como pronombres (reemplazando al sustantivo) o como adjetivos/determinantes (acompañando al sustantivo).",
+       "html": `
+         <div class="space-y-8 mt-8">
+           <div class="grid md:grid-cols-2 gap-8">
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Distancia y Número</h3>
+               <div class="overflow-x-auto rounded-lg border border-slate-200">
+                 <table class="w-full text-sm">
+                   <thead class="bg-slate-50">
+                     <tr><th class="p-3 font-semibold"></th><th class="p-3 font-semibold">Singular</th><th class="p-3 font-semibold">Plural</th></tr>
+                   </thead>
+                   <tbody class="bg-white text-center divide-y divide-slate-200">
+                     <tr><td class="p-3 font-semibold text-left"><b>Cerca</b> (Here)</td><td class="p-3"><code>This</code> (Este/a/o)</td><td class="p-3"><code>These</code> (Estos/as)</td></tr>
+                     <tr><td class="p-3 font-semibold text-left"><b>Lejos</b> (There)</td><td class="p-3"><code>That</code> (Ese/a/o)</td><td class="p-3"><code>Those</code> (Esos/as)</td></tr>
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+             <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Pronombre vs. Adjetivo</h3>
+               <ul class="space-y-3">
+                 <li data-accent-color="true"><b>Pronombre:</b> <b>This</b> is my chair. (reemplaza)</li>
+                 <li data-accent-color="true"><b>Adjetivo:</b> <b>This chair</b> is mine. (acompaña)</li>
+                 <li data-accent-color="true"><b>Pronombre:</b> I like <b>these</b> more than <b>those</b>.</li>
+                 <li data-accent-color="true"><b>Adjetivo:</b> I like <b>these shoes</b> more than <b>those shoes</b>.</li>
+               </ul>
+             </div>
+           </div>
+           <div>
+             <h3 class="text-lg font-semibold text-slate-800 mb-4">Otros Usos Comunes</h3>
+             <ul class="space-y-2 text-sm text-slate-700 list-disc list-inside">
+                 <li><b>Presentar personas:</b> Anna, <b>this</b> is my boss, Mr. Smith.</li>
+                 <li><b>En el teléfono:</b> Hello, <b>this</b> is Carlos speaking.</li>
+                 <li><b>Referirse a ideas o situaciones:</b> <b>That</b>'s a great idea! I didn't know <b>that</b>.</li>
+             </ul>
+           </div>
+         </div>
+       `
+     },
+     "interrogative": {
+       "title": "Pronombres Interrogativos",
+       "subtitle": "Para formular preguntas",
+       "accentColor": "#ef4444",
+       "explanation": "Se usan para iniciar preguntas (WH-Questions). El pronombre representa la información desconocida que se busca. Es clave saber qué tipo de información solicita cada uno para usarlos correctamente.",
+       "html": `
+         <div class="space-y-8 mt-8">
+           <div class="overflow-x-auto rounded-lg border border-slate-200">
+             <table class="w-full text-sm">
+               <thead class="bg-slate-50">
+                 <tr>
+                   <th class="p-3 font-semibold text-left">Pronombre</th>
+                   <th class="p-3 font-semibold text-left">Uso Principal</th>
+                   <th class="p-3 font-semibold text-left">Ejemplo</th>
+                 </tr>
+               </thead>
+               <tbody class="bg-white divide-y divide-slate-200">
+                 <tr>
+                   <td class="p-3"><code>Who</code></td><td class="p-3">Pregunta por una persona (sujeto).</td><td class="p-3"><b>Who</b> is at the door?</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><code>Whom</code></td><td class="p-3">Pregunta por una persona (objeto). Formal.</td><td class="p-3"><b>Whom</b> did you see?</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><code>Whose</code></td><td class="p-3">Pregunta por posesión o pertenencia.</td><td class="p-3"><b>Whose</b> keys are these?</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><code>What</code></td><td class="p-3">Pregunta por cosas, ideas o información general.</td><td class="p-3"><b>What</b> is your name?</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><code>Which</code></td><td class="p-3">Pregunta por una opción dentro de un grupo limitado.</td><td class="p-3"><b>Which</b> color do you prefer, red or blue?</td>
+                 </tr>
+               </tbody>
+             </table>
+           </div>
+           <div>
+               <h3 class="text-lg font-semibold text-slate-800 mb-4">Diferencias Clave</h3>
+               <ul class="space-y-2">
+                   <li class="p-3 bg-red-50 rounded-lg border border-red-200"><b>'What' vs 'Which':</b> Usa 'What' para opciones ilimitadas (<em><b>What</b> is your favorite movie?</em>) y 'Which' para opciones limitadas y conocidas (<em><b>Which</b> of these movies should we watch?</em>).</li>
+                   <li class="p-3 bg-red-50 rounded-lg border border-red-200"><b>'Who' vs 'Whom':</b> 'Who' es el sujeto (realiza la acción), 'Whom' es el objeto (recibe la acción). Una regla simple: si la respuesta puede ser 'he/she', usa 'Who'. Si puede ser 'him/her', usa 'Whom'. En el habla informal, 'Who' se usa a menudo para ambos.</li>
+               </ul>
+           </div>
+         </div>
+       `
+     },
+     "indefinite": {
+       "title": "Pronombres Indefinidos",
+       "subtitle": "Personas o cosas no específicas",
+       "accentColor": "#14b8a6",
+       "explanation": "Se refieren a personas, cosas o lugares de manera general y no específica. Se forman combinando 'some-', 'any-', 'every-' y 'no-' con '-one', '-body', '-thing' y '-where'. Una regla de oro: casi siempre se tratan como singulares y requieren un verbo en singular.",
+       "html": `
+         <div class="space-y-8 mt-8">
+           <div class="overflow-x-auto rounded-lg border border-slate-200">
+             <table class="w-full text-sm">
+               <thead class="bg-slate-50">
+                 <tr>
+                   <th class="p-3 font-semibold text-left">Prefijo</th>
+                   <th class="p-3 font-semibold text-left">Para Personas (-body, -one)</th>
+                   <th class="p-3 font-semibold text-left">Para Cosas (-thing)</th>
+                   <th class="p-3 font-semibold text-left">Uso Típico</th>
+                 </tr>
+               </thead>
+               <tbody class="bg-white divide-y divide-slate-200">
+                 <tr>
+                   <td class="p-3"><b>some-</b></td><td class="p-3"><code>somebody</code>, <code>someone</code></td><td class="p-3"><code>something</code></td><td class="p-3">Afirmativas y ofrecimientos.</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><b>any-</b></td><td class="p-3"><code>anybody</code>, <code>anyone</code></td><td class="p-3"><code>anything</code></td><td class="p-3">Negativas y preguntas.</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><b>every-</b></td><td class="p-3"><code>everybody</code>, <code>everyone</code></td><td class="p-3"><code>everything</code></td><td class="p-3">Totalidad, todos los miembros de un grupo.</td>
+                 </tr>
+                 <tr>
+                   <td class="p-3"><b>no-</b></td><td class="p-3"><code>nobody</code>, <code>no one</code></td><td class="p-3"><code>nothing</code></td><td class="p-3">Ausencia, en frases con verbo afirmativo.</td>
+                 </tr>
+               </tbody>
+             </table>
+           </div>
+           <div>
+             <h3 class="text-lg font-semibold text-slate-800 mb-4">Reglas y Ejemplos Cruciales</h3>
+             <ul class="space-y-3">
+               <li data-accent-color="true"><b>Afirmativo:</b> <b>Someone</b> is at the door. I want <b>something</b> to eat.</li>
+               <li data-accent-color="true"><b>Negativo:</b> I did not see <b>anyone</b>. There isn't <b>anything</b> in the fridge.</li>
+               <li data-accent-color="true"><b>Pregunta:</b> Is <b>anybody</b> home? Do you need <b>anything</b>?</li>
+               <li data-accent-color="true"><b>Con 'No-' (evita la doble negación):</b> <b>Nobody</b> called. (Correcto) / <s>Nobody didn't call.</s> (Incorrecto)</li>
+               <li class="p-3 bg-teal-50 rounded-lg border border-teal-200">
+                 <b>¡Siempre Singular!</b> La regla más importante es que estos pronombres toman un verbo en singular.
+                 <p class="pl-4 mt-1 text-sm text-slate-600"><em>Ej: <b>Everybody is</b> happy. (No 'are') / <b>Nothing was</b> stolen. (No 'were')</em></p>
+               </li>
+             </ul>
+           </div>
+         </div>
+       ` 
+    },
+            quiz: {
+                title: 'Quiz Interactivo',
+                subtitle: 'Pon a prueba tu conocimiento',
+                accentColor: '#0ea5e9' // Sky-500
+            }
+        };
+
+        const quizData = [
+            { question: "My sister bought a new laptop. ___ is very fast.", options: ["She", "It", "Her", "Hers"], correct: 1 },
+            { question: "This is my book. That one is ___.", options: ["my", "mine", "me", "I"], correct: 1 },
+            { question: "The cat cleaned ___.", options: ["itself", "himself", "herself", "themself"], correct: 0 },
+            { question: "___ is calling you?", options: ["Who", "Whom", "Whose", "Which"], correct: 0 },
+            { question: "I like these shoes, but I don't like ___.", options: ["those", "them", "they", "that"], correct: 0 },
+            { question: "Can you help ___?", options: ["I", "me", "myself", "mine"], correct: 1 },
+            { question: "___ keys are on the table?", options: ["Who", "Whose", "Which", "What"], correct: 1 },
+            { question: "Be careful or you will hurt ___.", options: ["yourself", "yours", "you", "themself"], correct: 0 },
+            { question: "She gave the book to ___.", options: ["he", "him", "his", "himself"], correct: 1 },
+            { question: "I have never seen ___ like it.", options: ["anything", "something", "everything", "nothing"], correct: 0 },
+        ];
+
+        // --- SCRIPT LOGIC ---
+        const navMenu = document.getElementById('nav-menu');
+        const contentArea = document.getElementById('content-area');
+        // ===== NUEVAS CONSTANTES PARA EL MENÚ MÓVIL =====
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const menuOpenIcon = document.getElementById('menu-open-icon');
+        const menuCloseIcon = document.getElementById('menu-close-icon');
+
+        let state = {
+            currentView: 'personal',
+            quiz: { currentQuestionIndex: 0, score: 0, answered: false }
+        };
+
+        const icons = {
+            personal: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>`,
+            possessive: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4z" /></svg>`,
+            reflexive: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>`,
+            demonstrative: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" /></svg>`,
+            interrogative: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>`,
+            indefinite: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" /></svg>`,
+            quiz: `<svg class="w-5 h-5 mr-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>`,
+        };
+
+        function renderNav() {
+            navMenu.innerHTML = Object.keys(contentData).map(key => {
+                const data = contentData[key];
+                const isActive = state.currentView === key;
+                const activeClasses = 'bg-indigo-600 text-white shadow-lg';
+                const inactiveClasses = 'text-slate-500 hover:bg-slate-100 hover:text-slate-800';
+                return `
+                    <button class="btn-nav w-full flex-shrink-0 lg:w-full flex items-center text-left text-md font-semibold rounded-lg p-3 transition-all duration-200 ease-in-out ${isActive ? activeClasses : inactiveClasses}" data-section="${key}">
+                        ${icons[key] || ''}
+                        <span>${data.title}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function applyAccentColor(accent) {
+            document.querySelectorAll('[data-accent-color="true"]').forEach(el => {
+                el.style.borderLeftColor = accent;
+                el.querySelectorAll('b').forEach(b => b.style.color = accent);
+            });
+            document.querySelectorAll('table code').forEach(el => {
+                el.style.backgroundColor = `${accent}20`;
+                el.style.color = accent;
+            });
+        }
+
+        function renderContent() {
+            const viewKey = state.currentView;
+            const data = contentData[viewKey];
+            
+            if (viewKey === 'quiz') {
+                renderQuiz();
+                return;
+            }
+
+            contentArea.innerHTML = `
+                <div class="card bg-white rounded-2xl shadow-lg p-6 sm:p-8 transition-all duration-300 animate-fade-in" style="border-top: 4px solid ${data.accentColor};">
+                    <h2 class="text-3xl font-bold text-slate-900">${data.title} <span class="text-slate-400 font-medium">(${data.subtitle})</span></h2>
+                    <p class="mt-2 text-slate-600 leading-relaxed">${data.explanation}</p>
+                    ${data.html}
+                </div>
+            `;
+            
+            contentArea.querySelectorAll('li[data-accent-color="true"]').forEach(el => el.classList.add('bg-slate-50', 'p-3', 'rounded-lg', 'border-l-4'));
+            contentArea.querySelectorAll('table td').forEach(el => el.classList.add('p-3'));
+            contentArea.querySelectorAll('table code').forEach(el => el.classList.add('font-semibold', 'px-2', 'py-1', 'rounded-md', 'text-sm'));
+            applyAccentColor(data.accentColor);
+        }
+        
+        function renderQuiz() {
+            const data = contentData.quiz;
+            const isFinished = state.quiz.currentQuestionIndex >= quizData.length;
+            
+            let quizHTML;
+            if (isFinished) {
+                const score = state.quiz.score;
+                const total = quizData.length;
+                const percentage = Math.round((score / total) * 100);
+                let message = "¡Buen trabajo! Sigue practicando para perfeccionar tu dominio.";
+                if (percentage >= 80) message = "🎉 ¡Excelente! Tienes un gran dominio de los pronombres.";
+                
+                quizHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-slate-900">${data.title} - Resultados</h2>
+                        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-6">
+                            <p class="text-lg text-slate-600">Tu puntuación final:</p>
+                            <p class="my-4 text-7xl font-extrabold" style="color: ${data.accentColor};">${score}<span class="text-4xl text-slate-400 font-medium">/${total}</span></p>
+                            <div class="w-full bg-slate-200 rounded-full h-4 my-4">
+                                <div class="bg-green-500 h-4 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                            <p class="text-slate-600">${message}</p>
+                            <button id="restart-quiz-btn" class="mt-8 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                                Intentar de nuevo
+                            </button>
+                        </div>
+                    </div>`;
+            } else {
+                const q = quizData[state.quiz.currentQuestionIndex];
+                const progress = ((state.quiz.currentQuestionIndex) / quizData.length) * 100;
+                quizHTML = `
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">${data.title}</h2>
+                    <p class="text-slate-500 mb-6">Pregunta ${state.quiz.currentQuestionIndex + 1} de ${quizData.length}</p>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 mb-6">
+                        <div id="progress-bar" class="h-2.5 rounded-full transition-all duration-300" style="width: ${progress}%; background-color: ${data.accentColor};"></div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                        <p class="text-xl font-semibold text-slate-800 mb-6">${q.question}</p>
+                        <div id="options-container" class="space-y-3">
+                            ${q.options.map((opt, i) => `
+                                <button class="btn-option w-full text-left p-4 rounded-lg border-2 border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200" data-option-index="${i}">
+                                    <span class="font-semibold text-slate-700">${opt}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="quiz-navigation" class="text-right mt-6">
+                            <button id="next-question-btn" class="bg-indigo-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none">
+                                Siguiente
+                            </button>
+                        </div>
+                    </div>`;
+            }
+            contentArea.innerHTML = `<div class="animate-fade-in">${quizHTML}</div>`;
+            if (!isFinished) {
+                document.getElementById('progress-bar').style.width = `${((state.quiz.currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            }
+            addQuizEventListeners();
+        }
+
+        // ===== FUNCIÓN MODIFICADA PARA MANEJAR CLIC EN NAVEGACIÓN =====
+        function handleNavClick(e) {
+            const button = e.target.closest('.btn-nav');
+            if (!button) return;
+            
+            state.currentView = button.dataset.section;
+            if (state.currentView === 'quiz') {
+                state.quiz = { currentQuestionIndex: 0, score: 0, answered: false };
+            }
+
+            renderNav();
+            renderContent();
+
+            // Cierra el menú si está en vista móvil
+            if (window.innerWidth < 1024) { 
+                toggleMobileMenu();
+            }
+        }
+        
+        // ===== NUEVA FUNCIÓN PARA ABRIR/CERRAR MENÚ MÓVIL =====
+        function toggleMobileMenu() {
+            navMenu.classList.toggle('hidden');
+            menuOpenIcon.classList.toggle('hidden');
+            menuCloseIcon.classList.toggle('hidden');
+        }
+
+        function handleOptionClick(e) {
+            if (state.quiz.answered) return;
+            state.quiz.answered = true;
+
+            const selectedBtn = e.target.closest('.btn-option');
+            if (!selectedBtn) return;
+
+            const q = quizData[state.quiz.currentQuestionIndex];
+            const selectedIndex = parseInt(selectedBtn.dataset.optionIndex);
+
+            const allOptions = document.querySelectorAll('.btn-option');
+            
+            allOptions.forEach((btn, index) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50');
+                if (index === q.correct) {
+                    btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                    btn.innerHTML += `<span class="float-right"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></span>`;
+                }
+            });
+
+            if (selectedIndex === q.correct) {
+                state.quiz.score++;
+            } else {
+                selectedBtn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                selectedBtn.innerHTML += `<span class="float-right"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></span>`;
+            }
+            
+            const nextBtn = document.getElementById('next-question-btn');
+            nextBtn.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none');
+        }
+
+        function addQuizEventListeners() {
+            const options = document.getElementById('options-container');
+            if(options) options.addEventListener('click', handleOptionClick);
+            
+            const nextBtn = document.getElementById('next-question-btn');
+            if(nextBtn) nextBtn.addEventListener('click', () => {
+                state.quiz.currentQuestionIndex++;
+                state.quiz.answered = false;
+                renderQuiz();
+            });
+
+            const restartBtn = document.getElementById('restart-quiz-btn');
+            if(restartBtn) restartBtn.addEventListener('click', () => {
+                state.quiz = { currentQuestionIndex: 0, score: 0, answered: false };
+                renderQuiz();
+            });
+        }
+        
+        function init() {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.5s ease-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+
+            navMenu.addEventListener('click', handleNavClick);
+            // ===== EVENT LISTENER PARA EL BOTÓN DE HAMBURGUESA =====
+            hamburgerBtn.addEventListener('click', toggleMobileMenu);
+
+            renderNav();
+            renderContent();
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
